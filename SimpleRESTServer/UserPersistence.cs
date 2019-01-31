@@ -12,215 +12,166 @@ namespace SimpleRESTServer
 {
     public class UserPersistence
     {        
-        public ArrayList getUsers()
+
+        /// <summary>
+        /// Returns all the users in the database
+        /// </summary>
+        /// <returns>List of all existing users</returns>
+        public List<User> getUsers()
         {
-            MySql.Data.MySqlClient.MySqlConnection conn;
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
+            string SQLString = "Select * From Users";
+            List<User> Users = new List<User>();
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
+
             try
             {
-                conn.ConnectionString = myConnectionString;
-                conn.Open();
-
-                ArrayList userArray = new ArrayList();
-
-                MySql.Data.MySqlClient.MySqlDataReader mySQLReader = null;
-
-                string sqlString = "SELECT * FROM Users";
-                MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-
-                mySQLReader = cmd.ExecuteReader();
-                while (mySQLReader.Read())
+                using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
                 {
-                    User u = new User();
-                    u.UserID = mySQLReader.GetInt32(0);
-                    u.Username = mySQLReader.GetString(1);
-                    u.FirstName = mySQLReader.GetString(2);
-                    u.LastName = mySQLReader.GetString(3);
-                    u.Email = mySQLReader.GetString(4);
-                    u.Password = mySQLReader.GetString(5);
-                    //u.PayRate = mySQLReader.GetFloat(3);
-                    //u.StartDate = mySQLReader.GetDateTime(4);
-                    //u.EndDate = mySQLReader.GetDateTime(5);
-                    userArray.Add(u);
+                    Conn.Open();
+                    using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                    {
+                        MySqlDataReader DR = CMD.ExecuteReader();
+
+                        while (DR.Read())
+                        {
+                            User CurrentUser = new User()
+                            {
+                                UserID    = (long)DR["UserID"],
+                                Username  = (string)DR["Username"],
+                                Password  = (string)DR["Password"],
+                                Email     = (string)DR["Email"],
+                                FirstName = (string)DR["FirstName"],
+                                LastName  = (string)DR["LastName"]
+                            };
+
+                            Users.Add(CurrentUser);
+                        }
+                    }
                 }
-                return userArray;
             }
-            catch (MySql.Data.MySqlClient.MySqlException ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
             finally
             {
-                conn.Close();
+                /*Nothing TO DO*/
             }
+
+            return Users;
         }
 
-        public long saveUser(User userToSave)
+        /// <summary>
+        /// Function to Create a new user account
+        /// </summary>
+        /// <param name="UserToSave">New user information</param>
+        /// <returns>User ID</returns>
+        public long saveUser(User UserToSave)
         {
-            MySql.Data.MySqlClient.MySqlConnection conn;
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
-            try
-            {
-                conn.ConnectionString = myConnectionString;
-                conn.Open();
+            long UserID = 0;
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
+            string SQLString = string.Format("INSERT INTO Users (Username, FirstName, LastName, Email, Password) VALUES ('{0}', '{1}', '{2}', {3}, {4}",
+                                          UserToSave.Username, UserToSave.FirstName, UserToSave.LastName, UserToSave.Email, UserToSave.Password);
 
-                string sqlString = "INSERT INTO Users (Username, FirstName, LastName, Email, Password) VALUES ('" + userToSave.Username + "', '" + userToSave.FirstName + "', '" + userToSave.LastName + "', '" + userToSave.Email + "', '" + userToSave.Password + "')";
+            using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
+            {
+                Conn.Open();
+                using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                {
+                    CMD.ExecuteNonQuery();
+                    UserID = CMD.LastInsertedId;
+                }
+            }
 
-                MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-                cmd.ExecuteNonQuery();
-                long userId = cmd.LastInsertedId;
-                return userId;
-            }
-            catch (MySql.Data.MySqlClient.MySqlException ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conn.Close();
-            }
+
+            return UserID;
         }
 
-        public User getUser(string username)
+        /// <summary>
+        /// Searchs for a specific user using the username
+        /// </summary>
+        /// <param name="Username">User Name</param>
+        /// <returns>User Personal Information</returns>
+        public User getUser(string Username)
         {
-            MySql.Data.MySqlClient.MySqlConnection conn;
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
-            try
+            User ResultUser = null;
+            string SQLString = string.Format("Select * From Users Where Username ='{0}'", Username);
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
+
+            using (MySqlConnection Conn = new MySqlConnection())
             {
-                conn.ConnectionString = myConnectionString;
-                conn.Open();
-
-                User u = new User();
-                MySql.Data.MySqlClient.MySqlDataReader mySQLReader = null;
-
-                string sqlString = "SELECT * FROM Users WHERE Username = " + username;
-                MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-
-                mySQLReader = cmd.ExecuteReader();
-                if (mySQLReader.Read())
+                Conn.Open();
+                using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
                 {
-                    u.UserID = mySQLReader.GetInt32(0);
-                    u.Username = mySQLReader.GetString(1);
-                    u.FirstName = mySQLReader.GetString(2);
-                    u.LastName = mySQLReader.GetString(3);
-                    u.Email = mySQLReader.GetString(4);
-                    u.Password = mySQLReader.GetString(5);
-                    return u;
-                }
-                else
-                {
-                    return null;
+                    MySqlDataReader DR = CMD.ExecuteReader();
+                    if(DR.Read() == true)
+                    {
+                        ResultUser = new User()
+                        {
+                            UserID    = (long)DR["UserID"],
+                            Username  = (string)DR["Username"],
+                            FirstName = (string)DR["FirstName"],
+                            LastName  = (string)DR["LastName"],
+                            Email     = (string)DR["Email"],
+                            Password  = (string)DR["Password"],
+                        };
+                    }
                 }
             }
-            catch (MySql.Data.MySqlClient.MySqlException ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conn.Close();
-            }
+
+            return ResultUser;
         }
 
-        public bool deleteUser(string username)
+        /// <summary>
+        /// Delete a user using his\her username
+        /// </summary>
+        /// <param name="Username">Username</param>
+        /// <returns></returns>
+        public bool deleteUser(string Username)
         {
-            MySql.Data.MySqlClient.MySqlConnection conn;
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
-            try
+            bool Status = false;
+            string SQLString = string.Format("Delete From Users Where Username ='{0}'", Username);
+
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
+
+            using (MySqlConnection Conn = new MySqlConnection())
             {
-                conn.ConnectionString = myConnectionString;
-                conn.Open();
-
-                User u = new User();
-                MySql.Data.MySqlClient.MySqlDataReader mySQLReader = null;
-
-                string sqlString = "SELECT * FROM Users WHERE Username = " + username;
-                MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-
-                mySQLReader = cmd.ExecuteReader();
-                if (mySQLReader.Read())
+                Conn.Open();
+                using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
                 {
-                    mySQLReader.Close();
+                    int Result = CMD.ExecuteNonQuery();
 
-                    sqlString = "DELETE FROM Users WHERE Username = " + username;
-                    cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-
-                    cmd.ExecuteNonQuery();
-                    return true;
-                }
-                else
-                {
-                    return false;
+                    if (Result != 0) Status = true; else Status = false;
                 }
             }
-            catch (MySql.Data.MySqlClient.MySqlException ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conn.Close();
-            }
+
+            return Status;
         }
 
-        public bool updateUser(string username, User userToSave)
+        /// <summary>
+        /// Update a user using his\her username
+        /// </summary>
+        /// <param name="UserData"></param>
+        /// <returns></returns>
+        public bool updateUser(User UserData)
         {
-            MySql.Data.MySqlClient.MySqlConnection conn;
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
-            try
+            bool Result;
+            string SQLString = string.Format("UPDATE Users SET " + 
+                                             "FirstName='{0}', LastName='{1}', Email='{2}', Password='{3}' Where Username='{4}'", 
+                                             UserData.FirstName, UserData.LastName, UserData.Email, UserData.Password, UserData.Username);
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
+
+            using (MySqlConnection Conn = new MySqlConnection())
             {
-                conn.ConnectionString = myConnectionString;
-                conn.Open();
-
-                MySql.Data.MySqlClient.MySqlDataReader mySQLReader = null;
-
-                string sqlString = "SELECT * FROM Users WHERE Username =@Param";
-
-                MySqlParameter Param = new MySqlParameter();
-                Param.DbType = System.Data.DbType.String;
-                Param.Value = username;
-                Param.Size = 100;
-                Param.ParameterName = "@Param";
-
-
-
-                MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-
-                cmd.Parameters.Add(Param);
-                mySQLReader = cmd.ExecuteReader();
-                if (mySQLReader.Read())
+                Conn.Open();
+                using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
                 {
-                    mySQLReader.Close();
-
-                    sqlString = "UPDATE Users SET " +
-                                                    "FirstName='" + userToSave.FirstName + "', " +
-                                                    "LastName='" + userToSave.LastName + "', " +
-                                                    "Email='" + userToSave.Email + "', " +
-                                                    "Password='" + userToSave.Password + "' " +
-                                                    "WHERE Username = " + @username;
-                    cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-
-                    cmd.ExecuteNonQuery();
-                    return true;
-                }
-                else
-                {
-                    return false;
+                    int AffectedRows = CMD.ExecuteNonQuery();
+                    if (AffectedRows != 0) Result = true; else Result = false;
                 }
             }
-            catch (MySql.Data.MySqlClient.MySqlException ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conn.Close();
-            }
+
+            return Result;
         }
     }
 }

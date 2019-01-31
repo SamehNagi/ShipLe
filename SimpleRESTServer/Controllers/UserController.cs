@@ -18,7 +18,7 @@ namespace SimpleRESTServer.Controllers
         /// </summary>
         /// <returns></returns>
         // GET: api/User
-        public ArrayList Get()
+        public List<User> Get()
         {
             UserPersistence up = new UserPersistence();
             return up.getUsers();
@@ -93,6 +93,7 @@ namespace SimpleRESTServer.Controllers
             UserPersistence up = new UserPersistence();
             bool recordExisted = false;
             recordExisted = up.updateUser(username, value);
+
 
             HttpResponseMessage response;
 
