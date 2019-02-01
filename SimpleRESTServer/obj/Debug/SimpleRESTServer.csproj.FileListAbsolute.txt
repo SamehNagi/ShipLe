@@ -80,3 +80,7 @@ C:\Users\snagi\Desktop\SimpleRESTServer\SimpleRESTServer\bin\System.Web.WebPages
 C:\Users\snagi\Desktop\SimpleRESTServer\SimpleRESTServer\bin\System.Web.WebPages.Deployment.xml
 C:\Users\snagi\Desktop\SimpleRESTServer\SimpleRESTServer\bin\System.Web.WebPages.Razor.xml
 C:\Users\snagi\Desktop\SimpleRESTServer\SimpleRESTServer\bin\SimpleRESTServer.xml
+C:\Users\snagi\Desktop\GitRepo\SimpleRESTServer\obj\Debug\SimpleRESTServer.csprojAssemblyReference.cache
+C:\Users\snagi\Desktop\GitRepo\SimpleRESTServer\obj\Debug\SimpleRESTServer.csproj.CoreCompileInputs.cache
+C:\Users\snagi\Desktop\GitRepo\SimpleRESTServer\obj\Debug\SimpleRESTServer.dll
+C:\Users\snagi\Desktop\GitRepo\SimpleRESTServer\obj\Debug\SimpleRESTServer.pdb
