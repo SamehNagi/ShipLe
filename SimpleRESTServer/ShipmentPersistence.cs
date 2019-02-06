@@ -12,129 +12,167 @@ namespace SimpleRESTServer
 {
     public class ShipmentPersistence
     {
-        public ArrayList getShipments()
+        /// <summary>
+        /// Gets All shipments in the database
+        /// </summary>
+        /// <returns></returns>
+        public List<Shipment> GetShimpments()
         {
-			MySql.Data.MySqlClient.MySqlConnection conn;
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
-			try
-			{
-				conn.ConnectionString = myConnectionString;
-                conn.Open();
-				
-				ArrayList shipmentArray = new ArrayList();
+            List<Shipment> Shipments = new List<Shipment>();
+            string SQLQuery = "Select * From Shipments";
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
 
-				MySql.Data.MySqlClient.MySqlDataReader mySQLReader = null;
-	
-				string sqlString = "SELECT * FROM Shipments";
-				MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-	
-				mySQLReader = cmd.ExecuteReader();
-				while (mySQLReader.Read())
-				{
-					Shipment sh = new Shipment();
-	
-					sh.ShipmentID        = mySQLReader.GetInt32(0);
-                    sh.TripID            = mySQLReader.GetInt32(1);
-                    sh.Username          = mySQLReader.GetString(2);
-					sh.From_City_Country = mySQLReader.GetString(3);
-					sh.To_City_Country   = mySQLReader.GetString(4);
-					sh.IWantItBefore     = mySQLReader.GetDateTime(5);
-					sh.ShipmentName      = mySQLReader.GetString(6);
-					sh.ShipmentNote      = mySQLReader.GetString(7);
-	
-					shipmentArray.Add(sh);
-				}
-				return shipmentArray;
-			}
-			catch (MySql.Data.MySqlClient.MySqlException ex)
+            using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
-                throw ex;
+                try
+                {
+                    for (int I = 0; I < 3; I++)
+                    {
+                        Conn.Open();
+                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                if (Conn.State == System.Data.ConnectionState.Open)
+                {
+                    using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
+                    {
+
+                        MySqlDataReader DR = CMD.ExecuteReader();
+
+                        while (DR.Read())
+                        {
+                            Shipment Ship = new Shipment()
+                            {
+                                ShipmentID        = DR["ShipmentID"].ToString(),
+                                TripID            = DR["TripID"].ToString(),
+                                Username          = DR["Username"].ToString(),
+                                From_City_Country = DR["From_City_Country"].ToString(),
+                                To_City_Country   = DR["To_City_Country"],
+                                IWantItBefore     = DR["IWantItBefore"],
+                                ShipmentName      = DR["ShipmentName"],
+                                ShipmentNote      = DR["ShipmentNote"]
+                            };
+
+                            Shipments.Add(Ship);
+                        }
+                    }
+                }
             }
-            finally
+
+            return Shipments;
+        }
+
+        /// <summary>
+        /// Save New Shipment to the Database
+        /// </summary>
+        /// <param name="ShipmentData"></param>
+        /// <returns></returns>
+        public long SaveShipment(Shipment ShipmentData)
+        {
+            long ShipmentID = 0;
+            string SQLQuery = string.Format("INSERT INTO Shipments (TripID, Username, From_City_Country, To_City_Country, " +
+                              "IWantItBefore, ShipmentName, ShipmentNote) Values ({0},'{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                              ShipmentData.ShipmentID, ShipmentData.Username, ShipmentData.From_City_Country,
+                              ShipmentData.To_City_Country, ShipmentData.IWantItBefore, ShipmentData.ShipmentName,
+                              ShipmentData.ShipmentNote);
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
+
+            using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
-                conn.Close();
+                try
+                {
+                    for (int I = 0; I < 3; I++)
+                    {
+                        Conn.Open();
+                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                if (Conn.State == System.Data.ConnectionState.Open)
+                {
+                    using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
+                    {
+                        CMD.ExecuteNonQuery();
+                        ShipmentID = CMD.LastInsertedID();
+                    }
+                }
             }
         }
 
-        public long saveShipment(Shipment shipmentToSave)
+        /// <summary>
+        /// Gets a specific Shipment using ID
+        /// </summary>
+        /// <param name="ShipmentID"></param>
+        /// <returns></returns>
+        public Shipment GetShipment(long ShipmentID)
         {
-			MySql.Data.MySqlClient.MySqlConnection conn;
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
-            try
-			{
-				conn.ConnectionString = myConnectionString;
-                conn.Open();
-				
-				string sqlString = "INSERT INTO Shipments (TripID, Username, From_City_Country, To_City_Country, IWantItBefore, ShipmentName, ShipmentNote) " +
-                "VALUES (" + shipmentToSave.TripID + ", '" + shipmentToSave.Username + "', '" + shipmentToSave.From_City_Country + "', '" + shipmentToSave.To_City_Country + "', " +
-                "'" + shipmentToSave.IWantItBefore.ToString("yyyy-MM-dd") + "', '" + shipmentToSave.ShipmentName + "', '" + shipmentToSave.ShipmentNote + "')";
+            Shipment ShipmentData = null;
+            string SQLQuery = "Select * From Shipments Where ShipmentID=" + ShipmentID.ToString();
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
 
-				MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-				cmd.ExecuteNonQuery();
-				long shipmentId = cmd.LastInsertedId;
-				return shipmentId;
-			}
-			catch (MySql.Data.MySqlClient.MySqlException ex)
+            using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
-                throw ex;
+                try
+                {
+                    for (int I = 0; I < 3; I++)
+                    {
+                        Conn.Open();
+                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                if (Conn.State == System.Data.ConnectionState.Open)
+                {
+                    using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
+                    {
+                        MySqlDataReader DR = CMD.ExecuteQuery();
+
+                        if (DR.Read())
+                        {
+                            ShipmentData = new Shipment()
+                            {
+                                ShipmentID          = DR["ShipmentID"].ToString(),
+                                TripID              = DR["TripID"].ToString(),
+                                Username            = DR["Username"].ToString(),
+                                From_City_Country   = DR["From_City_Country"].ToString(),
+                                To_City_Country     = DR["To_City_Country"].ToString(),
+                                IWantItBefore       = DR["IWantItBefore"].ToString(),
+                                ShipmentName        = DR["ShipmentName"].ToString(),
+                                ShipmentNote        = DR["ShipmentNote"].ToString(),
+                            };
+                        }
+                    }
+                }
             }
-            finally
-            {
-                conn.Close();
-            }
+
+            return ShipmentData;
         }
 
-        public Shipment getShipment(long shipmentId)
+        /// <summary>
+        /// Deletes a Shipment from the database using ID
+        /// </summary>
+        /// <param name="ShipmentID"></param>
+        /// <returns></returns>
+        public bool DeleteShipment(long ShipmentID)
         {
-			MySql.Data.MySqlClient.MySqlConnection conn;
             string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
-            try
-			{
-				conn.ConnectionString = myConnectionString;
-                conn.Open();
-				
-				Shipment sh = new Shipment();
-				MySql.Data.MySqlClient.MySqlDataReader mySQLReader = null;
-	
-				string sqlString = "SELECT * FROM Shipments WHERE ShipmentID = " + shipmentId.ToString();
-				MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-	
-				mySQLReader = cmd.ExecuteReader();
-				if (mySQLReader.Read())
-				{
-					sh.ShipmentID        = mySQLReader.GetInt32(0);
-                    sh.TripID            = mySQLReader.GetInt32(1);
-                    sh.Username          = mySQLReader.GetString(2);
-					sh.From_City_Country = mySQLReader.GetString(3);
-					sh.To_City_Country   = mySQLReader.GetString(4);
-					sh.IWantItBefore     = mySQLReader.GetDateTime(5);
-					sh.ShipmentName      = mySQLReader.GetString(6);
-					sh.ShipmentNote      = mySQLReader.GetString(7);
-	
-					return sh;
-				}
-				else
-				{
-					return null;
-				}
-			}
-			catch (MySql.Data.MySqlClient.MySqlException ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conn.Close();
-            }
-        }
-
-        public bool deleteShipment(long shipmentId)
-        {
 			MySql.Data.MySqlClient.MySqlConnection conn;
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
             conn = new MySql.Data.MySqlClient.MySqlConnection();
             try
 			{
@@ -172,8 +210,8 @@ namespace SimpleRESTServer
 
         public bool updateShipment(long shipmentId, Shipment shipmentToSave)
         {
-			MySql.Data.MySqlClient.MySqlConnection conn;
             string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
+			MySql.Data.MySqlClient.MySqlConnection conn;
             conn = new MySql.Data.MySqlClient.MySqlConnection();
             try
 			{
