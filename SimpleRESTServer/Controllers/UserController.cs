@@ -20,47 +20,40 @@ namespace SimpleRESTServer.Controllers
         // GET: api/User
         public List<User> Get()
         {
-            UserPersistence up = new UserPersistence();
-            return up.getUsers();
+            return UserPersistence.GetUsers();
         }
 
         /// <summary>
-        /// Get a specific user by id
+        /// Get a specific user by his\her username
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="Username">Username to check for</param>
         /// <returns></returns>
-        // GET: api/User/5
-        public User Get(string username)
+        // GET: api/User/?Username=
+        public User Get(string Username)
         {
             User udtResult = new User();
-            if ("eng_same7" == username)
+            User ResultUser = UserPersistence.GetUser(Username);
+            if (Request.Headers.Contains("Password"))
             {
-                udtResult.UserID = 1;
-                udtResult.Username = username;
-                udtResult.FirstName = "Sameh";
-                udtResult.LastName = "Nagi";
-                udtResult.Email = udtResult.FirstName + "." + udtResult.LastName + "@valeo.com";
-                udtResult.Password = "123456";
+                string Password = Request.Headers.GetValues("Password").First();
+            }
+
+            if (ResultUser != null)
+            {
+                udtResult.UserID    = ResultUser.UserID;
+                udtResult.Username  = ResultUser.Username;
+                udtResult.FirstName = ResultUser.FirstName;
+                udtResult.LastName  = ResultUser.LastName;
+                udtResult.Email     = ResultUser.Email;
+                udtResult.Password  = ResultUser.Password;
             }
             else
             {
-                udtResult.UserID = 100;
-                udtResult.Username = username;
-                udtResult.FirstName = "Ahmed";
-                udtResult.LastName = "Abdelmaksoud";
-                udtResult.Email = udtResult.FirstName + "." + udtResult.LastName + "@valeo.com";
-                udtResult.Password = "654321";
-            }
-
-            return udtResult;
-            UserPersistence up = new UserPersistence();
-            User user = up.getUser(username);
-            if (user == null)
-            {
+                /*To be Changed*/
                 throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.NotFound));
             }
 
-            return user;
+            return ResultUser;
         }
 
         /// <summary>
@@ -69,11 +62,10 @@ namespace SimpleRESTServer.Controllers
         /// <param name="value"></param>
         /// <returns></returns>
         // POST: api/User
-        public HttpResponseMessage Post([FromBody]User value)
+        public HttpResponseMessage Post([FromBody]User Value)
         {
-            UserPersistence up = new UserPersistence();
             long id;
-            id = up.saveUser(value);
+            id = UserPersistence.SaveUser(Value);
 
             HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created);
             // !Comment: This is used to set the location of the posted id in the header after the post is done.
@@ -84,15 +76,24 @@ namespace SimpleRESTServer.Controllers
         /// <summary>
         /// Modify a specific user by username
         /// </summary>
-        /// <param name="username"></param>
+        /// <param name="Username"></param>
         /// <param name="value"></param>
         /// <returns></returns>
         // PUT: api/User/eng_same7
-        public HttpResponseMessage Put([FromUri]string username, [FromBody]User value)
+        public HttpResponseMessage Put(long UserID, [FromBody]User value)
         {
-            UserPersistence up = new UserPersistence();
             bool recordExisted = false;
-            recordExisted = up.updateUser(username, value);
+            User UserData = new User() 
+            { 
+                UserID    = UserID,
+                Username  = value.Username , 
+                FirstName = value.FirstName, 
+                LastName  = value.LastName, 
+                Email     = value.Email, 
+                Password  = value.Password
+            };
+
+            recordExisted = UserPersistence.UpdateUser(UserData);
 
 
             HttpResponseMessage response;
@@ -113,15 +114,15 @@ namespace SimpleRESTServer.Controllers
         /// <summary>
         /// Delete a specific user by id
         /// </summary>
-        /// <param name="username"></param>
+        /// <param name="UserId"></param>
         /// <returns></returns>
         // DELETE: api/User/5
-        public HttpResponseMessage Delete(string username)
+        public HttpResponseMessage Delete(long UserId)
         {
-            UserPersistence up = new UserPersistence();
             bool recordExisted = false;
+            User UserData = new User() { UserID = UserId };
 
-            recordExisted = up.deleteUser(username);
+            recordExisted = UserPersistence.DeleteUser(UserId);
 
             HttpResponseMessage response;
 

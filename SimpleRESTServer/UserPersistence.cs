@@ -12,12 +12,11 @@ namespace SimpleRESTServer
 {
     public class UserPersistence
     {        
-
         /// <summary>
         /// Returns all the users in the database
         /// </summary>
         /// <returns>List of all existing users</returns>
-        public List<User> getUsers()
+        public static List<User> GetUsers()
         {
             string SQLString = "Select * From Users";
             List<User> Users = new List<User>();
@@ -66,20 +65,41 @@ namespace SimpleRESTServer
         /// </summary>
         /// <param name="UserToSave">New user information</param>
         /// <returns>User ID</returns>
-        public long saveUser(User UserToSave)
+        public static long SaveUser(User UserToSave)
         {
             long UserID = 0;
             string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            string SQLString = string.Format("INSERT INTO Users (Username, FirstName, LastName, Email, Password) VALUES ('{0}', '{1}', '{2}', {3}, {4}",
-                                          UserToSave.Username, UserToSave.FirstName, UserToSave.LastName, UserToSave.Email, UserToSave.Password);
+            string SQLString = "Insert Into Users (Username, FirstName, LastName, Email, Password) Values (@Username, @FirtsName, @LastName, @Email, @Password)";
 
             using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
-                Conn.Open();
-                using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                try
                 {
-                    CMD.ExecuteNonQuery();
-                    UserID = CMD.LastInsertedId;
+                    for (int I = 0; I < 3; I++)
+                    {
+                        Conn.Open();
+                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                if (Conn.State == System.Data.ConnectionState.Open)
+                {
+                    using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                    {
+                        CMD.Parameters.Add("Username",  MySqlDbType.VarChar,  100).Value  = UserToSave.Username;
+                        CMD.Parameters.Add("FirstName", MySqlDbType.VarChar,  100).Value  = UserToSave.FirstName;
+                        CMD.Parameters.Add("LastName",  MySqlDbType.VarChar,  100).Value  = UserToSave.LastName;
+                        CMD.Parameters.Add("Email",     MySqlDbType.VarChar,  100).Value  = UserToSave.Email;
+                        CMD.Parameters.Add("Password",  MySqlDbType.VarChar,  100).Value  = UserToSave.Password;
+
+                        CMD.ExecuteNonQuery();
+                        UserID = CMD.LastInsertedId;
+                    }
                 }
             }
 
@@ -92,29 +112,54 @@ namespace SimpleRESTServer
         /// </summary>
         /// <param name="Username">User Name</param>
         /// <returns>User Personal Information</returns>
-        public User getUser(string Username)
+        public static User GetUser(string Username)
         {
             User ResultUser = null;
-            string SQLString = string.Format("Select * From Users Where Username ='{0}'", Username);
+            string SQLString = "Select * From Users Where Username = @Username";
             string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
 
-            using (MySqlConnection Conn = new MySqlConnection())
+            using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
-                Conn.Open();
-                using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                try
                 {
-                    MySqlDataReader DR = CMD.ExecuteReader();
-                    if(DR.Read() == true)
+                    for (int I = 0; I < 3; I++ )
                     {
-                        ResultUser = new User()
+                        Conn.Open();
+                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                    }
+
+                }
+                catch(Exception ex)
+                {
+
+                }
+
+                /*Check Connection State*/
+                if(Conn.State == System.Data.ConnectionState.Open)
+                {
+                    MySqlParameter Parameter = new MySqlParameter() 
+                    { 
+                        ParameterName ="@Username", 
+                        DbType = System.Data.DbType.String, 
+                        Size = 100, Value = Username
+                    };
+
+                    using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                    {
+                        CMD.Parameters.Add(Parameter);
+                        MySqlDataReader DR = CMD.ExecuteReader();
+                        if(DR.Read() == true)
                         {
-                            UserID    = (long)DR["UserID"],
-                            Username  = (string)DR["Username"],
-                            FirstName = (string)DR["FirstName"],
-                            LastName  = (string)DR["LastName"],
-                            Email     = (string)DR["Email"],
-                            Password  = (string)DR["Password"],
-                        };
+                            ResultUser = new User()
+                            {
+                                UserID    = long.Parse(DR["UserID"].ToString()),
+                                Username  = DR["Username"].ToString(),
+                                FirstName = DR["FirstName"].ToString(),
+                                LastName  = DR["LastName"].ToString(),
+                                Email     = DR["Email"].ToString(),
+                                Password  = DR["Password"].ToString()
+                            };
+                        }
                     }
                 }
             }
@@ -127,21 +172,47 @@ namespace SimpleRESTServer
         /// </summary>
         /// <param name="Username">Username</param>
         /// <returns></returns>
-        public bool deleteUser(string Username)
+        public static bool DeleteUser(long UserID)
         {
             bool Status = false;
-            string SQLString = string.Format("Delete From Users Where Username ='{0}'", Username);
+            string SQLString = "Delete From Users Where UserID=@ID";
 
             string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
 
-            using (MySqlConnection Conn = new MySqlConnection())
+            using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
-                Conn.Open();
-                using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                try
                 {
-                    int Result = CMD.ExecuteNonQuery();
+                    for (int I = 0; I < 3; I++)
+                    {
+                        Conn.Open();
+                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                    }
 
-                    if (Result != 0) Status = true; else Status = false;
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                /*Check Connection State*/
+                if (Conn.State == System.Data.ConnectionState.Open)
+                {
+                    using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                    {
+                        MySqlParameter Parameter = new MySqlParameter()
+                        {
+                            ParameterName = "@ID",
+                            DbType = System.Data.DbType.Int32,
+                            Size = 100,
+                            Value = UserID
+                        };
+                        CMD.Parameters.Add(Parameter);
+
+                        int Result = CMD.ExecuteNonQuery();
+
+                        if (Result != 0) Status = true; else Status = false;
+                    }
                 }
             }
 
@@ -153,21 +224,44 @@ namespace SimpleRESTServer
         /// </summary>
         /// <param name="UserData"></param>
         /// <returns></returns>
-        public bool updateUser(User UserData)
+        public static bool UpdateUser(User UserData)
         {
-            bool Result;
+            bool Result = false;
             string SQLString = string.Format("UPDATE Users SET " + 
-                                             "FirstName='{0}', LastName='{1}', Email='{2}', Password='{3}' Where Username='{4}'", 
+                                             "Username = @Username, FirstName=@FirstName, LastName=@LastName, Email=@Email, Password=@Password Where UserID=@UserID", 
                                              UserData.FirstName, UserData.LastName, UserData.Email, UserData.Password, UserData.Username);
             string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
 
-            using (MySqlConnection Conn = new MySqlConnection())
+            using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
-                Conn.Open();
-                using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                try
                 {
-                    int AffectedRows = CMD.ExecuteNonQuery();
-                    if (AffectedRows != 0) Result = true; else Result = false;
+                    for (int I = 0; I < 3; I++)
+                    {
+                        Conn.Open();
+                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Result = false;
+                }
+
+                /*Check Connection State*/
+                if (Conn.State == System.Data.ConnectionState.Open)
+                {
+                    using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                    {
+                        CMD.Parameters.Add("Username", MySqlDbType.VarChar, 100).Value = UserData.Username;
+                        CMD.Parameters.Add("FirstName", MySqlDbType.VarChar, 100).Value = UserData.FirstName;
+                        CMD.Parameters.Add("LastName", MySqlDbType.VarChar, 100).Value = UserData.LastName;
+                        CMD.Parameters.Add("Email", MySqlDbType.VarChar, 100).Value = UserData.Email;
+                        CMD.Parameters.Add("Password", MySqlDbType.VarChar, 100).Value = UserData.Password;
+                        CMD.Parameters.Add("UserID", MySqlDbType.Int32).Value = UserData.UserID;
+                        int AffectedRows = CMD.ExecuteNonQuery();
+                        if (AffectedRows != 0) Result = true;
+                    }
                 }
             }
 
