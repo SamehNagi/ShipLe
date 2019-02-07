@@ -167,59 +167,87 @@ namespace SimpleRESTServer
         /// <summary>
         /// Deletes a Shipment from the database using ID
         /// </summary>
-        /// <param name="ShipmentID"></param>
+        /// <param name="ShipmentID">ID of the shipment to be deleted</param>
         /// <returns></returns>
         public bool DeleteShipment(long ShipmentID)
         {
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-			MySql.Data.MySqlClient.MySqlConnection conn;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
-            try
-			{
-				Shipment u = new Shipment();
-				MySql.Data.MySqlClient.MySqlDataReader mySQLReader = null;
-	
-				string sqlString = "SELECT * FROM Shipments WHERE ShipmentID = " + shipmentId.ToString();
-				MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-	
-				mySQLReader = cmd.ExecuteReader();
-				if (mySQLReader.Read())
-				{
-					mySQLReader.Close();
-	
-					sqlString = "DELETE FROM Shipments WHERE ShipmentID = " + shipmentId.ToString();
-					cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-	
-					cmd.ExecuteNonQuery();
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-            catch (MySql.Data.MySqlClient.MySqlException ex)
+            bool Deleted = false;
+            string SQLQuery = "Delete From Shipments Where ShipmentID=" + ShipmentID.ToString();
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
+
+            using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
-                throw ex;
+                try
+                {
+                    for (int I = 0; I < 3; I++)
+                    {
+                        Conn.Open();
+                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                if (Conn.State == System.Data.ConnectionState.Open)
+                {
+                    using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
+                    {
+                        if (CMD.ExecuteNonQuery() > 0) Deleted = true;
+                    }
+                }
             }
-            finally
-            {
-                conn.Close();
-            }
+
+            return Deleted;
         }
 
-        public bool updateShipment(long shipmentId, Shipment shipmentToSave)
+        /// <summary>
+        /// Update Shipment Data using its ID
+        /// </summary>
+        /// <param name="ShipmentData"></param>
+        /// <returns></returns>
+        public bool UpdateShipment(Shipment ShipmentData)
         {
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-			MySql.Data.MySqlClient.MySqlConnection conn;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
+            string SQLQuery = "Update Shipments Set " +
+                                                    "TripID="             + ShipmentData.TripID + ", " +
+                                                    "Username='"          + ShipmentData.Username + "', " +
+                                                    "From_City_Country='" + ShipmentData.From_City_Country + "', " +
+                                                    "To_City_Country='"   + ShipmentData.To_City_Country + "', " +
+                                                    "IWantItBefore='"     + ShipmentData.IWantItBefore.ToString("yyyy-MM-dd") + "', " +
+                                                    "ShipmentName='"      + ShipmentData.ShipmentName + "', " +
+                                                    "ShipmentNote='"      + ShipmentData.ShipmentNote + "' " +
+                                                    "Where ShipmentID = " + ShipmentData.ShipmentID.ToString(); 
+
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
+
+            using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
+            {
+                try
+                {
+                    for (int I = 0; I < 3; I++)
+                    {
+                        Conn.Open();
+                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                if (Conn.State == System.Data.ConnectionState.Open)
+                {
+                    using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
+                    {
+                    }
+                }
+            }
             try
 			{
-				MySql.Data.MySqlClient.MySqlDataReader mySQLReader = null;
 
-				string sqlString = "SELECT * FROM Shipments WHERE ShipmentID = " + shipmentId.ToString();
-				MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-	
 				mySQLReader = cmd.ExecuteReader();
 				if (mySQLReader.Read())
 				{
