@@ -212,14 +212,14 @@ namespace SimpleRESTServer
         {
             bool Updated = false;
             string SQLQuery = "Update Shipments Set " +
-                                                    "TripID="             + ShipmentData.TripID + ", " +
-                                                    "Username='"          + ShipmentData.Username + "', " +
-                                                    "From_City_Country='" + ShipmentData.From_City_Country + "', " +
-                                                    "To_City_Country='"   + ShipmentData.To_City_Country + "', " +
-                                                    "IWantItBefore='"     + ShipmentData.IWantItBefore.ToString("yyyy-MM-dd") + "', " +
-                                                    "ShipmentName='"      + ShipmentData.ShipmentName + "', " +
-                                                    "ShipmentNote='"      + ShipmentData.ShipmentNote + "' " +
-                                                    "Where ShipmentID = " + ShipmentData.ShipmentID.ToString(); 
+                                                    "TripID              = @TripID,"          +
+                                                    "Username            = @Username,"        +
+                                                    "From_City_Country   = @FromCountry,"     +
+                                                    "To_City_Country     = @ToCountry,"       +
+                                                    "IWantItBefore       = @DeliveryDate,"    +
+                                                    "ShipmentName        = @Shipmentname,"    +
+                                                    "ShipmentNote        = @ShipmentNote,"    +
+                                                    "Where ShipmentID    = @ShipmentID";
 
             string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
 
@@ -243,6 +243,7 @@ namespace SimpleRESTServer
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
                     {
+                        /*parameters is not yet add*/
                         int AffectedRows = CMD.ExecuteNonQuery();
                         if (AffectedRows > 0) Updated = true;
                     }
