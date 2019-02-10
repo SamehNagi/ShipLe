@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using SimpleRESTServer.Models;
+using System.Data;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using System.Collections;
@@ -12,62 +13,70 @@ namespace SimpleRESTServer
 {
     public class TripPersistence
     {
-        public ArrayList getTrips()
+        public List<Trip> GetTrips()
         {
-            MySql.Data.MySqlClient.MySqlConnection conn;
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
-			try
-			{
-				conn.ConnectionString = myConnectionString;
-                conn.Open();
-				
-				ArrayList tripArray = new ArrayList();
+            List<Trip> Trips = new List<Trip>();
 
-                MySql.Data.MySqlClient.MySqlDataReader mySQLReader = null;
+            string SQLString = "Select * From Trips";
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
 
-                string sqlString = "SELECT * FROM Trips";
-                MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-
-				mySQLReader = cmd.ExecuteReader();
-				while (mySQLReader.Read())
-				{
-					Trip t = new Trip();
-	
-					t.TripID                       = mySQLReader.GetInt32(0);
-					t.Username                     = mySQLReader.GetString(1);
-					t.From_City_Country            = mySQLReader.GetString(2);
-					t.To_City_Country              = mySQLReader.GetString(3);
-					t.TransportationType           = mySQLReader.GetString(4);
-					t.OutboundTripDetails_Day      = mySQLReader.GetDateTime(5);
-					t.OutboundTripDetails_Time     = mySQLReader.GetTimeSpan(6);
-					t.OutboundTripDetails_Duration = mySQLReader.GetFloat(7);
-					t.AddAReturnTrip               = mySQLReader.GetBoolean(8);
-					t.ReturnTripDetails_Day        = mySQLReader.GetDateTime(9);
-					t.ReturnTripDetails_Time       = mySQLReader.GetTimeSpan(10);
-					t.ReturnTripDetails_Duration   = mySQLReader.GetFloat(11);
-					t.AvailableWeight              = mySQLReader.GetFloat(12);
-					t.ExcludedCategories           = mySQLReader.GetString(13);
-					t.TripNote                     = mySQLReader.GetString(14);
-	
-					tripArray.Add(t);
-				}
-				return tripArray;
-			}
-			catch (MySql.Data.MySqlClient.MySqlException ex)
+            using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
-                throw ex;
+                try
+                {
+                    for (int I = 0; I < 3; I++)
+                    {
+                        Conn.Open();
+                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                if (Conn.State == System.Data.ConnectionState.Open)
+                {
+                    using(MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                    {
+                        MySqlDataReader DR = CMD.ExecuteReader();
+
+                        while(DR.Read())
+                        {
+                            Trip TripData = new Trip()
+                            {
+                                TripID              = long.Parse(DR["TripID"].ToString()),
+                                UserID              = long.Parse(DR["UserID"].ToString()),
+                                Source_Country      = long.Parse(DR["Source_Country"].ToString()),
+                                Destination_Country = long.Parse(DR["Destination_Country"].ToString()),
+                                Travel_Date         = DateTime.Parse(DR["Travel_Date"].ToString()),
+                                Arival_Date         = DateTime.Parse(DR["Arival_Date"].ToString()),
+                                Transportation      = long.Parse(DR["Transportation"].ToString()),
+                                TripNote            = DR["Note"].ToString(),
+                                Available_Weight    = float.Parse(DR["Weight"].ToString())
+                            };
+
+                            Trips.Add(TripData);
+                        }
+                    }
+                }
             }
-            finally
-            {
-                conn.Close();
-            }
+
+            return Trips;
         }
 
-        public long saveTrip(Trip tripToSave)
+        /// <summary>
+        /// Save a New Trip to Database
+        /// </summary>
+        /// <param name="TripData"></param>
+        /// <returns></returns>
+        public long SaveTrip(Trip TripData)
         {
+            string SQLString = "";
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
+
 			MySql.Data.MySqlClient.MySqlConnection conn;
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
             conn = new MySql.Data.MySqlClient.MySqlConnection();
 			try
 			{
@@ -78,7 +87,7 @@ namespace SimpleRESTServer
                                 "OutboundTripDetails_Time, OutboundTripDetails_Duration, AddAReturnTrip, ReturnTripDetails_Day, ReturnTripDetails_Time, " +
                                 "ReturnTripDetails_Duration, AvailableWeight, ExcludedCategories, TripNote) " +
                                 "VALUES ('" + tripToSave.Username + "', '" + tripToSave.From_City_Country + "', '" + tripToSave.To_City_Country + "', " +
-                                            "'" + tripToSave.TransportationType + "', '" + tripToSave.OutboundTripDetails_Day.ToString("yyyy-MM-dd") + "', " +
+                                            "'" + tripToSave.Transportation + "', '" + tripToSave.OutboundTripDetails_Day.ToString("yyyy-MM-dd") + "', " +
                                             "'" + tripToSave.OutboundTripDetails_Time + "', " + tripToSave.OutboundTripDetails_Duration + ", " +
                                             "" + tripToSave.AddAReturnTrip + ", '" + tripToSave.ReturnTripDetails_Day.ToString("yyyy-MM-dd") + "', " +
                                             "'" + tripToSave.ReturnTripDetails_Time + "', " + tripToSave.ReturnTripDetails_Duration + ", " +
@@ -99,154 +108,161 @@ namespace SimpleRESTServer
             }
         }
 
-        public Trip getTrip(long tripId)
+        /// <summary>
+        /// Get Trip Data based on its ID
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
+        public Trip GetTrip(long ID)
         {
-			MySql.Data.MySqlClient.MySqlConnection conn;
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
-			try
-			{
-				conn.ConnectionString = myConnectionString;
-                conn.Open();
-				
-				Trip t = new Trip();
-				MySql.Data.MySqlClient.MySqlDataReader mySQLReader = null;
+            Trip TripData = null;
+            string SQLString = "Select * From Trips Where TripID=" + ID.ToString();
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
 
-				string sqlString = "SELECT * FROM Trips WHERE TripID = " + tripId.ToString();
-				MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-				
-				mySQLReader = cmd.ExecuteReader();
-				if (mySQLReader.Read())
-				{
-					t.TripID = mySQLReader.GetInt32(0);
-					t.Username = mySQLReader.GetString(1);
-					t.From_City_Country = mySQLReader.GetString(2);
-					t.To_City_Country = mySQLReader.GetString(3);
-					t.TransportationType = mySQLReader.GetString(4);
-					t.OutboundTripDetails_Day = mySQLReader.GetDateTime(5);
-					t.OutboundTripDetails_Time = mySQLReader.GetTimeSpan(6);
-					t.OutboundTripDetails_Duration = mySQLReader.GetFloat(7);
-					t.AddAReturnTrip = mySQLReader.GetBoolean(8);
-					t.ReturnTripDetails_Day = mySQLReader.GetDateTime(9);
-					t.ReturnTripDetails_Time = mySQLReader.GetTimeSpan(10);
-					t.ReturnTripDetails_Duration = mySQLReader.GetFloat(11);
-					t.AvailableWeight = mySQLReader.GetFloat(12);
-					t.ExcludedCategories = mySQLReader.GetString(13);
-					t.TripNote = mySQLReader.GetString(14);
-	
-					return t;
-				}
-				else
-				{
-					return null;
-				}
-			}
-            catch (MySql.Data.MySqlClient.MySqlException ex)
+            using(MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
-                throw ex;
+                try
+                {
+                    for (int I = 0; I < 3; I++)
+                    {
+                        Conn.Open();
+                        if (Conn.State == ConnectionState.Open) break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                if(Conn.State == ConnectionState.Open)
+                {
+                    using(MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                    {
+                        MySqlDataReader DR = CMD.ExecuteReader();
+
+                        if (DR.Read())
+                        {
+                            TripData = new Trip()
+                            {
+                                UserID              = long.Parse(DR["UserID"].ToString()),
+                                TripID              = long.Parse(DR["TripID"].ToString()),
+                                Source_Country      = long.Parse(DR["Source_Country"].ToString()),
+                                Destination_Country = long.Parse(DR["Destination_Country"].ToString()),
+                                Travel_Date         = DateTime.Parse(DR["Travel_Date"].ToString()),
+                                Arival_Date         = DateTime.Parse(DR["Arival_Date"].ToString()),
+                                Transportation      = long.Parse(DR["Transportation"].ToString()),
+                                Available_Weight    = float.Parse(DR["Weight"].ToString()),
+                                TripNote            = DR["Note"].ToString()
+                            };
+                        }
+                    }
+                }
             }
-            finally
-            {
-                conn.Close();
-            }
+
+            return TripData;
         }
 
-        public bool deleteTrip(long tripId)
+        /// <summary>
+        /// Delete Trip Data based on its ID
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
+        public bool DeleteTrip(long ID)
         {
-			MySql.Data.MySqlClient.MySqlConnection conn;
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
-            try
-			{
-				conn.ConnectionString = myConnectionString;
-                conn.Open();
-				
-				Trip u = new Trip();
-				MySql.Data.MySqlClient.MySqlDataReader mySQLReader = null;
-	
-				string sqlString = "SELECT * FROM Trips WHERE TripID = " + tripId.ToString();
-				MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-				
-				mySQLReader = cmd.ExecuteReader();
-				if (mySQLReader.Read())
-				{
-					mySQLReader.Close();
-	
-					sqlString = "DELETE FROM Trips WHERE TripID = " + tripId.ToString();
-					cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-	
-					cmd.ExecuteNonQuery();
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-            catch (MySql.Data.MySqlClient.MySqlException ex)
+            bool Deleted = false;
+            string SQLString = "Delete From Trips Where TripID=" + ID.ToString();
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
+
+            using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
-                throw ex;
+                try
+                {
+                    for (int I = 0; I < 3; I++)
+                    {
+                        Conn.Open();
+                        if (Conn.State == ConnectionState.Open) break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                if (Conn.State == ConnectionState.Open)
+                {
+                    using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                    {
+                        int AffectedRows = CMD.ExecuteNonQuery();
+
+                        if (AffectedRows != 0) Deleted = true;
+                    }
+                }
             }
-            finally
-            {
-                conn.Close();
-            }
+
+            return Deleted;
         }
 
-        public bool updateTrip(long tripId, Trip tripToSave)
+        /// <summary>
+        /// Update Trip Data Using its Data
+        /// </summary>
+        /// <param name="TripData"></param>
+        /// <returns></returns>
+        public bool UpdateTrips(Trip TripData)
         {
-			MySql.Data.MySqlClient.MySqlConnection conn;
-            string myConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
-            try
-			{
-				conn.ConnectionString = myConnectionString;
-                conn.Open();
-				
-				MySql.Data.MySqlClient.MySqlDataReader mySQLReader = null;
+            bool Updated = false;
+            string SQLString = "Update Trips Set "  +
+                                "TripID              = @TripID"         + 
+                                "UserID              = @UserID,"        +
+                                "Travel_Date         = @TDate"          +
+                                "Arival_Date         = @ADate"          +
+                                "Source_Country      = @SCountry"       +
+                                "Destination_Country = @DCountry"       +
+                                "Transportation      = @Transportation" +
+                                "Weight              = @Weight"         +
+                                "Note                = @Note"           +
+                                "Where TripID        = @TripID";
+                                
+            string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
 
-				string sqlString = "SELECT * FROM Trips WHERE TripID = " + tripId.ToString();
-				MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-				
-				mySQLReader = cmd.ExecuteReader();
-				if (mySQLReader.Read())
-				{
-					mySQLReader.Close();
-	
-					sqlString = "UPDATE Trips SET " +
-													"Username='" + tripToSave.Username + "', " +
-													"From_City_Country='" + tripToSave.From_City_Country + "', " +
-													"To_City_Country='" + tripToSave.To_City_Country + "', " +
-													"TransportationType='" + tripToSave.TransportationType + "', " +
-													"OutboundTripDetails_Day='" + tripToSave.OutboundTripDetails_Day.ToString("yyyy-MM-dd") + "', " +
-													"OutboundTripDetails_Time='" + tripToSave.OutboundTripDetails_Time + "', " +
-													"OutboundTripDetails_Duration='" + tripToSave.OutboundTripDetails_Duration + "', " +
-													"AddAReturnTrip=" + tripToSave.AddAReturnTrip + ", " +
-													"ReturnTripDetails_Day='" + tripToSave.ReturnTripDetails_Day.ToString("yyyy-MM-dd") + "', " +
-													"ReturnTripDetails_Time='" + tripToSave.ReturnTripDetails_Time + "', " +
-													"ReturnTripDetails_Duration='" + tripToSave.ReturnTripDetails_Duration + "', " +
-													"AvailableWeight=" + tripToSave.AvailableWeight + ", " +
-													"ExcludedCategories='" + tripToSave.ExcludedCategories + "', " +
-													"TripNote='" + tripToSave.TripNote + "' " +
-													"WHERE TripID = " + tripId.ToString();
-					cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-	
-					cmd.ExecuteNonQuery();
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-            catch (MySql.Data.MySqlClient.MySqlException ex)
+            using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
-                throw ex;
+                try
+                {
+                    for (int I = 0; I < 3; I++)
+                    {
+                        Conn.Open();
+                        if (Conn.State == ConnectionState.Open) break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                if (Conn.State == ConnectionState.Open)
+                {
+                    using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                    {
+                        CMD.Parameters.Add("@TripID",         MySqlDbType.Int32).Value = TripData.TripID;
+                        CMD.Parameters.Add("@UserID",         MySqlDbType.Int32).Value = TripData.UserID;
+                        CMD.Parameters.Add("@TDate",          MySqlDbType.Date).Value  = TripData.Travel_Date;
+                        CMD.Parameters.Add("@ADate",          MySqlDbType.Date).Value  = TripData.Arival_Date;
+                        CMD.Parameters.Add("@SCountry",       MySqlDbType.Int32).Value = TripData.Source_Country;
+                        CMD.Parameters.Add("@DCountry",       MySqlDbType.Int32).Value = TripData.Destination_Country;
+                        CMD.Parameters.Add("@Transportation", MySqlDbType.Int32).Value = TripData.Transportation;
+                        CMD.Parameters.Add("@Weight",         MySqlDbType.Float).Value = TripData.Available_Weight;
+                        CMD.Parameters.Add("@Note",           MySqlDbType.Text).Value  = TripData.TripNote;
+
+                        int AffectedRows = CMD.ExecuteNonQuery();
+                        if (AffectedRows != 0) Updated = true;
+                    }
+                }
             }
-            finally
-            {
-                conn.Close();
-            }
+
+            return Updated;
         }
     }
 }
