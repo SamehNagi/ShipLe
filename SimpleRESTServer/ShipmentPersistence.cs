@@ -16,7 +16,7 @@ namespace SimpleRESTServer
         /// Gets All shipments in the database
         /// </summary>
         /// <returns></returns>
-        public List<Shipment> GetShimpments()
+        public static List<Shipment> GetShimpments()
         {
             List<Shipment> Shipments = new List<Shipment>();
             string SQLQuery = "Select * From Shipments";
@@ -73,7 +73,7 @@ namespace SimpleRESTServer
         /// </summary>
         /// <param name="ShipmentData"></param>
         /// <returns></returns>
-        public long SaveShipment(Shipment ShipmentData)
+        public static long SaveShipment(Shipment ShipmentData)
         {
             long ShipmentID = 0;
             string SQLQuery = string.Format("INSERT INTO Shipments (TripID, Username, From_City_Country, To_City_Country, " +
@@ -96,7 +96,7 @@ namespace SimpleRESTServer
                 }
                 catch (Exception ex)
                 {
-
+                    //Check if the connection is faild
                 }
 
                 if (Conn.State == System.Data.ConnectionState.Open)
@@ -104,10 +104,12 @@ namespace SimpleRESTServer
                     using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
                     {
                         CMD.ExecuteNonQuery();
-                        ShipmentID = CMD.LastInsertedID();
+                        ShipmentID = CMD.LastInsertedId;
                     }
                 }
             }
+
+            return ShipmentID;
         }
 
         /// <summary>
@@ -115,7 +117,7 @@ namespace SimpleRESTServer
         /// </summary>
         /// <param name="ShipmentID"></param>
         /// <returns></returns>
-        public Shipment GetShipment(long ShipmentID)
+        public static Shipment GetShipment(long ShipmentID)
         {
             Shipment ShipmentData = null;
             string SQLQuery = "Select * From Shipments Where ShipmentID=" + ShipmentID.ToString();
@@ -141,18 +143,18 @@ namespace SimpleRESTServer
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
                     {
-                        MySqlDataReader DR = CMD.ExecuteQuery();
+                        MySqlDataReader DR = CMD.ExecuteReader();
 
                         if (DR.Read())
                         {
                             ShipmentData = new Shipment()
                             {
-                                ShipmentID          = DR["ShipmentID"].ToString(),
-                                TripID              = DR["TripID"].ToString(),
+                                ShipmentID          = long.Parse(DR["ShipmentID"].ToString()),
+                                TripID              = long.Parse(DR["TripID"].ToString()),
                                 Username            = DR["Username"].ToString(),
                                 From_City_Country   = DR["From_City_Country"].ToString(),
                                 To_City_Country     = DR["To_City_Country"].ToString(),
-                                IWantItBefore       = DR["IWantItBefore"].ToString(),
+                                IWantItBefore       = DateTime.Parse(DR["IWantItBefore"].ToString()),
                                 ShipmentName        = DR["ShipmentName"].ToString(),
                                 ShipmentNote        = DR["ShipmentNote"].ToString(),
                             };
@@ -169,7 +171,7 @@ namespace SimpleRESTServer
         /// </summary>
         /// <param name="ShipmentID">ID of the shipment to be deleted</param>
         /// <returns></returns>
-        public bool DeleteShipment(long ShipmentID)
+        public static bool DeleteShipment(long ShipmentID)
         {
             bool Deleted = false;
             string SQLQuery = "Delete From Shipments Where ShipmentID=" + ShipmentID.ToString();
@@ -208,7 +210,7 @@ namespace SimpleRESTServer
         /// </summary>
         /// <param name="ShipmentData"></param>
         /// <returns></returns>
-        public bool UpdateShipment(Shipment ShipmentData)
+        public static bool UpdateShipment(Shipment ShipmentData)
         {
             bool Updated = false;
             string SQLQuery = "Update Shipments Set " +

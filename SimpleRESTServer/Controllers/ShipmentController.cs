@@ -16,10 +16,9 @@ namespace SimpleRESTServer.Controllers
         /// </summary>
         /// <returns></returns>
         // GET: api/Shipment
-        public ArrayList Get()
+        public List<Shipment> Get()
         {
-            ShipmentPersistence sp = new ShipmentPersistence();
-            return sp.getShipments();
+            return ShipmentPersistence.GetShimpments();
         }
 
         /// <summary>
@@ -28,15 +27,12 @@ namespace SimpleRESTServer.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         // GET: api/Shipment/5
-        public Shipment Get(long id)
+        public Shipment Get(long ID)
         {
-            ShipmentPersistence tp = new ShipmentPersistence();
-            Shipment shipment = tp.getShipment(id);
-            if (shipment == null)
-            {
-                throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.NotFound));
-            }
-            return shipment;
+            Shipment ShipmentData = ShipmentPersistence.GetShipment(ID);
+
+
+            return ShipmentData;
         }
 
         /// <summary>
@@ -45,16 +41,25 @@ namespace SimpleRESTServer.Controllers
         /// <param name="value"></param>
         /// <returns></returns>
         // POST: api/Shipment
-        public HttpResponseMessage Post([FromBody]Shipment value)
+        public HttpResponseMessage Post([FromBody]Shipment Value)
         {
-            ShipmentPersistence sp = new ShipmentPersistence();
-            long id;
-            id = sp.saveShipment(value);
+            HttpResponseMessage Response;
+            long ID = ShipmentPersistence.SaveShipment(Value);
 
-            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created);
-            // !Comment: This is used to set the location of the posted id in the header after the post is done.
-            response.Headers.Location = new Uri(Request.RequestUri, string.Format("shipment/{0}", id));
-            return response;
+            if (ID != 0)
+            {
+                // !Comment: This is used to set the location of the posted id in the header after the post is done.
+                Response = Request.CreateResponse(HttpStatusCode.Created);
+                Response.Headers.Location = new Uri(Request.RequestUri, string.Format("shipment/{0}", ID));
+            }
+            else
+            {
+                // !Comment: This is used to set the location of the posted id in the header after the post is done.
+                Response = Request.CreateResponse(HttpStatusCode.BadRequest);
+                Response.Headers.Location = new Uri(Request.RequestUri, "Creating New Shipment Failed");
+            }
+
+            return Response;
         }
 
         /// <summary>
@@ -64,53 +69,53 @@ namespace SimpleRESTServer.Controllers
         /// <param name="value"></param>
         /// <returns></returns>
         // PUT: api/Shipment/5
-        public HttpResponseMessage Put(long id, [FromBody]Shipment value)
+        public HttpResponseMessage Put(long ID, [FromBody]Shipment Value)
         {
-            ShipmentPersistence sp = new ShipmentPersistence();
-            bool recordExisted = false;
-            recordExisted = sp.updateShipment(id, value);
+            Value.ShipmentID = ID;
+            HttpResponseMessage Response;
+            bool Updated = ShipmentPersistence.UpdateShipment(Value);
 
-            HttpResponseMessage response;
 
-            if (recordExisted)
+            if (Updated)
             {
+                // TBD: Should not use these responses in order not to get confused with connection faild
                 // !Comment: return 402 -> record found with no content.
-                response = Request.CreateResponse(HttpStatusCode.NoContent);
+                Response = Request.CreateResponse(HttpStatusCode.NoContent);
             }
             else
             {
+                // TBD: Should not use these responses in order not to get confused with connection faild
                 // !Comment: return 404 -> record not found.
-                response = Request.CreateResponse(HttpStatusCode.NotFound);
+                Response = Request.CreateResponse(HttpStatusCode.NotFound);
             }
-            return response;
+            return Response;
         }
 
         /// <summary>
         /// Delete a specific shipment by id
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="ID"></param>
         /// <returns></returns>
         // DELETE: api/Shipment/5
-        public HttpResponseMessage Delete(long id)
+        public HttpResponseMessage Delete(long ID)
         {
-            ShipmentPersistence sp = new ShipmentPersistence();
-            bool recordExisted = false;
+            HttpResponseMessage Response;
+            bool Deleted = ShipmentPersistence.DeleteShipment(ID);
 
-            recordExisted = sp.deleteShipment(id);
-
-            HttpResponseMessage response;
-
-            if (recordExisted)
+            if (Deleted)
             {
+                // TBD: Should not use these responses in order not to get confused with connection faild
                 // !Comment: return 402 -> record found with no content.
-                response = Request.CreateResponse(HttpStatusCode.NoContent);
+                Response = Request.CreateResponse(HttpStatusCode.NoContent);
             }
             else
             {
+                // TBD: Should not use these responses in order not to get confused with connection faild
                 // !Comment: return 404 -> record not found.
-                response = Request.CreateResponse(HttpStatusCode.NotFound);
+                Response = Request.CreateResponse(HttpStatusCode.NotFound);
             }
-            return response;
+
+            return Response;
         }
     }
 }
