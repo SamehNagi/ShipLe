@@ -210,6 +210,7 @@ namespace SimpleRESTServer
         /// <returns></returns>
         public bool UpdateShipment(Shipment ShipmentData)
         {
+            bool Updated = false;
             string SQLQuery = "Update Shipments Set " +
                                                     "TripID="             + ShipmentData.TripID + ", " +
                                                     "Username='"          + ShipmentData.Username + "', " +
@@ -235,52 +236,21 @@ namespace SimpleRESTServer
                 }
                 catch (Exception ex)
                 {
-
+                    //Check for what to do in case the connection faild
                 }
 
                 if (Conn.State == System.Data.ConnectionState.Open)
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
                     {
+                        int AffectedRows = CMD.ExecuteNonQuery();
+                        if (AffectedRows > 0) Updated = true;
                     }
                 }
             }
-            try
-			{
 
-				mySQLReader = cmd.ExecuteReader();
-				if (mySQLReader.Read())
-				{
-					mySQLReader.Close();
-	
-					sqlString = "UPDATE Shipments SET " +
-													"TripID=" + shipmentToSave.TripID + ", " +
-                                                    "Username='" + shipmentToSave.Username + "', " +
-                                                    "From_City_Country='" + shipmentToSave.From_City_Country + "', " +
-													"To_City_Country='" + shipmentToSave.To_City_Country + "', " +
-													"IWantItBefore='" + shipmentToSave.IWantItBefore.ToString("yyyy-MM-dd") + "', " +
-													"ShipmentName='" + shipmentToSave.ShipmentName + "', " +
-													"ShipmentNote='" + shipmentToSave.ShipmentNote + "' " +
-													"WHERE ShipmentID = " + shipmentId.ToString();
-	
-					cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-	
-					cmd.ExecuteNonQuery();
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-            catch (MySql.Data.MySqlClient.MySqlException ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conn.Close();
-            }
+
+            return Updated;
         }
     }
 }
