@@ -49,14 +49,14 @@ namespace SimpleRESTServer
                         {
                             Shipment Ship = new Shipment()
                             {
-                                ShipmentID        = DR["ShipmentID"].ToString(),
-                                TripID            = DR["TripID"].ToString(),
+                                ShipmentID        = long.Parse(DR["ShipmentID"].ToString()),
+                                TripID            = long.Parse(DR["TripID"].ToString()),
                                 Username          = DR["Username"].ToString(),
                                 From_City_Country = DR["From_City_Country"].ToString(),
-                                To_City_Country   = DR["To_City_Country"],
-                                IWantItBefore     = DR["IWantItBefore"],
-                                ShipmentName      = DR["ShipmentName"],
-                                ShipmentNote      = DR["ShipmentNote"]
+                                To_City_Country   = DR["To_City_Country"].ToString(),
+                                IWantItBefore     = DateTime.Parse(DR["IWantItBefore"].ToString()),
+                                ShipmentName      = DR["ShipmentName"].ToString(),
+                                ShipmentNote      = DR["ShipmentNote"].ToString()
                             };
 
                             Shipments.Add(Ship);
@@ -245,7 +245,14 @@ namespace SimpleRESTServer
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
                     {
-                        /*parameters is not yet add*/
+                        CMD.Parameters.Add("@TripID",       MySqlDbType.Int32).Value   = ShipmentData.TripID;
+                        CMD.Parameters.Add("@Username",     MySqlDbType.VarChar).Value = ShipmentData.Username;
+                        CMD.Parameters.Add("@FromCountry",  MySqlDbType.VarChar).Value = ShipmentData.From_City_Country;
+                        CMD.Parameters.Add("@ToCountry",    MySqlDbType.VarChar).Value = ShipmentData.To_City_Country;
+                        CMD.Parameters.Add("@DeliveryDate", MySqlDbType.Date).Value    = ShipmentData.IWantItBefore;
+                        CMD.Parameters.Add("@Shipmentname", MySqlDbType.VarChar).Value = ShipmentData.ShipmentName;
+                        CMD.Parameters.Add("@ShipmentNote", MySqlDbType.VarChar).Value = ShipmentData.ShipmentNote;
+
                         int AffectedRows = CMD.ExecuteNonQuery();
                         if (AffectedRows > 0) Updated = true;
                     }

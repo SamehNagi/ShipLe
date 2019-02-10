@@ -22,9 +22,9 @@ namespace SimpleRESTServer.Controllers
         }
 
         /// <summary>
-        /// Get a specific shipment by id
+        /// Get a specific shipment by ID
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="ID"></param>
         /// <returns></returns>
         // GET: api/Shipment/5
         public Shipment Get(long ID)
@@ -38,7 +38,7 @@ namespace SimpleRESTServer.Controllers
         /// <summary>
         /// Create/Save a new shipment
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="Value"></param>
         /// <returns></returns>
         // POST: api/Shipment
         public HttpResponseMessage Post([FromBody]Shipment Value)
@@ -65,8 +65,8 @@ namespace SimpleRESTServer.Controllers
         /// <summary>
         /// Modify a specific shipment by id
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="value"></param>
+        /// <param name="ID"></param>
+        /// <param name="Value"></param>
         /// <returns></returns>
         // PUT: api/Shipment/5
         public HttpResponseMessage Put(long ID, [FromBody]Shipment Value)
