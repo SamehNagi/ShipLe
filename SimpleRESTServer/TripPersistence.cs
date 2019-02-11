@@ -51,7 +51,7 @@ namespace SimpleRESTServer
                                 Source_Country      = long.Parse(DR["Source_Country"].ToString()),
                                 Destination_Country = long.Parse(DR["Destination_Country"].ToString()),
                                 Travel_Date         = DateTime.Parse(DR["Travel_Date"].ToString()),
-                                Arival_Date         = DateTime.Parse(DR["Arival_Date"].ToString()),
+                                Arrival_Date         = DateTime.Parse(DR["Arrival_Date"].ToString()),
                                 Transportation      = long.Parse(DR["Transportation"].ToString()),
                                 TripNote            = DR["Note"].ToString(),
                                 Available_Weight    = float.Parse(DR["Weight"].ToString())
@@ -74,11 +74,14 @@ namespace SimpleRESTServer
         public static long SaveTrip(Trip TripData)
         {
             long TripID = 0;
+            string TravelDate = string.Format("{0}-{1}-{2}", TripData.Travel_Date.Year, TripData.Travel_Date.Day, TripData.Travel_Date.Month);
+            string ArrivalDate = string.Format("{0}-{1}-{2}", TripData.Arrival_Date.Year, TripData.Arrival_Date.Day, TripData.Arrival_Date.Month);
+
             string SQLString = string.Format("Insert Into Trips " +
-                               "(UserID, Source_Country, Destination_Country, Transportation, Travel_Date, Arival_Date, Weight, Note) " +
-                               "Vales ({0}, {1}, {2}, {3}, #{4}#, #{5}#, {6}, '{7}')", 
-                               TripData.UserID, TripData.Source_Country, TripData.Destination_Country, TripData.Transportation, 
-                               TripData.Travel_Date, TripData.Arival_Date, TripData.Available_Weight, TripData.TripNote);
+                               "(UserID, Source_Country, Destination_Country, Travel_Date, Arrival_Date, Weight, Transportation, Note) " +
+                               "Values ({0}, {1}, {2}, '{3}', '{4}', {5}, {6}, '{7}')", 
+                               TripData.UserID, TripData.Source_Country, TripData.Destination_Country,
+                               TravelDate, ArrivalDate, TripData.Available_Weight.ToString(), TripData.Transportation, TripData.TripNote);
             string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
 
             using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
@@ -153,7 +156,7 @@ namespace SimpleRESTServer
                                 Source_Country      = long.Parse(DR["Source_Country"].ToString()),
                                 Destination_Country = long.Parse(DR["Destination_Country"].ToString()),
                                 Travel_Date         = DateTime.Parse(DR["Travel_Date"].ToString()),
-                                Arival_Date         = DateTime.Parse(DR["Arival_Date"].ToString()),
+                                Arrival_Date         = DateTime.Parse(DR["Arrival_Date"].ToString()),
                                 Transportation      = long.Parse(DR["Transportation"].ToString()),
                                 Available_Weight    = float.Parse(DR["Weight"].ToString()),
                                 TripNote            = DR["Note"].ToString()
@@ -216,15 +219,15 @@ namespace SimpleRESTServer
         {
             bool Updated = false;
             string SQLString = "Update Trips Set "  +
-                                "TripID              = @TripID"         + 
+                                "TripID              = @TripID,"         + 
                                 "UserID              = @UserID,"        +
-                                "Travel_Date         = @TDate"          +
-                                "Arival_Date         = @ADate"          +
-                                "Source_Country      = @SCountry"       +
-                                "Destination_Country = @DCountry"       +
-                                "Transportation      = @Transportation" +
-                                "Weight              = @Weight"         +
-                                "Note                = @Note"           +
+                                "Travel_Date         = @TDate,"          +
+                                "Arrival_Date         = @ADate,"          +
+                                "Source_Country      = @SCountry,"       +
+                                "Destination_Country = @DCountry,"       +
+                                "Transportation      = @Transportation," +
+                                "Weight              = @Weight,"         +
+                                "Note                = @Note "           +
                                 "Where TripID        = @TripID";
                                 
             string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
@@ -252,7 +255,7 @@ namespace SimpleRESTServer
                         CMD.Parameters.Add("@TripID",         MySqlDbType.Int32).Value = TripData.TripID;
                         CMD.Parameters.Add("@UserID",         MySqlDbType.Int32).Value = TripData.UserID;
                         CMD.Parameters.Add("@TDate",          MySqlDbType.Date).Value  = TripData.Travel_Date;
-                        CMD.Parameters.Add("@ADate",          MySqlDbType.Date).Value  = TripData.Arival_Date;
+                        CMD.Parameters.Add("@ADate",          MySqlDbType.Date).Value  = TripData.Arrival_Date;
                         CMD.Parameters.Add("@SCountry",       MySqlDbType.Int32).Value = TripData.Source_Country;
                         CMD.Parameters.Add("@DCountry",       MySqlDbType.Int32).Value = TripData.Destination_Country;
                         CMD.Parameters.Add("@Transportation", MySqlDbType.Int32).Value = TripData.Transportation;

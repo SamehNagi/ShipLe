@@ -59,7 +59,7 @@ namespace SimpleRESTServer.Controllers
         /// <summary>
         /// Create/Save a new user
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="Value"></param>
         /// <returns></returns>
         // POST: api/User
         public HttpResponseMessage Post([FromBody]User Value)
@@ -76,21 +76,21 @@ namespace SimpleRESTServer.Controllers
         /// <summary>
         /// Modify a specific user by username
         /// </summary>
-        /// <param name="Username"></param>
-        /// <param name="value"></param>
+        /// <param name="UserID"></param>
+        /// <param name="Value"></param>
         /// <returns></returns>
-        // PUT: api/User/eng_same7
-        public HttpResponseMessage Put(long UserID, [FromBody]User value)
+        // PUT: api/User/?UserID=
+        public HttpResponseMessage Put(long UserID, [FromBody]User Value)
         {
             bool recordExisted = false;
             User UserData = new User() 
             { 
                 UserID    = UserID,
-                Username  = value.Username , 
-                FirstName = value.FirstName, 
-                LastName  = value.LastName, 
-                Email     = value.Email, 
-                Password  = value.Password
+                Username  = Value.Username , 
+                FirstName = Value.FirstName, 
+                LastName  = Value.LastName, 
+                Email     = Value.Email, 
+                Password  = Value.Password
             };
 
             recordExisted = UserPersistence.UpdateUser(UserData);
@@ -114,15 +114,15 @@ namespace SimpleRESTServer.Controllers
         /// <summary>
         /// Delete a specific user by id
         /// </summary>
-        /// <param name="UserId"></param>
+        /// <param name="UserID"></param>
         /// <returns></returns>
-        // DELETE: api/User/5
-        public HttpResponseMessage Delete(long UserId)
+        // DELETE: api/User/?UserID=
+        public HttpResponseMessage Delete(long UserID)
         {
             bool recordExisted = false;
-            User UserData = new User() { UserID = UserId };
+            User UserData = new User() { UserID = UserID };
 
-            recordExisted = UserPersistence.DeleteUser(UserId);
+            recordExisted = UserPersistence.DeleteUser(UserID);
 
             HttpResponseMessage response;
 

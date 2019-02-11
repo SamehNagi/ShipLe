@@ -26,7 +26,7 @@ namespace SimpleRESTServer.Controllers
         /// </summary>
         /// <param name="ID"></param>
         /// <returns></returns>
-        // GET: api/Trip/5
+        // GET: api/Trip/?ID=
         public Trip Get(long ID)
         {
             Trip TripData = TripPersistence.GetTrip(ID);
@@ -61,7 +61,7 @@ namespace SimpleRESTServer.Controllers
         /// <param name="ID"></param>
         /// <param name="Value"></param>
         /// <returns></returns>
-        // PUT: api/Trip/5
+        // PUT: api/Trip/?ID=
         public HttpResponseMessage Put(long ID, [FromBody]Trip Value)
         {
             Value.TripID = ID;
@@ -88,7 +88,7 @@ namespace SimpleRESTServer.Controllers
         /// </summary>
         /// <param name="ID"></param>
         /// <returns></returns>
-        // DELETE: api/Trip/5
+        // DELETE: api/Trip/?ID=
         public HttpResponseMessage Delete(long ID)
         {
             bool Deleted = TripPersistence.DeleteTrip(ID);

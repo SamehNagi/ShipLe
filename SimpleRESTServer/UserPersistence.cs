@@ -26,24 +26,39 @@ namespace SimpleRESTServer
             {
                 using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
                 {
-                    Conn.Open();
-                    using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                    try
                     {
-                        MySqlDataReader DR = CMD.ExecuteReader();
-
-                        while (DR.Read())
+                        for(int Count = 0; Count < 3; Count++)
                         {
-                            User CurrentUser = new User()
-                            {
-                                UserID    = (long)DR["UserID"],
-                                Username  = (string)DR["Username"],
-                                Password  = (string)DR["Password"],
-                                Email     = (string)DR["Email"],
-                                FirstName = (string)DR["FirstName"],
-                                LastName  = (string)DR["LastName"]
-                            };
+                            Conn.Open();
+                            if (Conn.State == System.Data.ConnectionState.Open) break;
+                        }
+                    }
+                    catch(Exception ex)
+                    {
 
-                            Users.Add(CurrentUser);
+                    }
+
+                    if (Conn.State == System.Data.ConnectionState.Open)
+                    {
+                        using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                        {
+                            MySqlDataReader DR = CMD.ExecuteReader();
+
+                            while (DR.Read())
+                            {
+                                User CurrentUser = new User()
+                                {
+                                    UserID    = long.Parse(DR["UserID"].ToString()),
+                                    Username  = DR["Username"].ToString(),
+                                    Password  = DR["Password"].ToString(),
+                                    Email     = DR["Email"].ToString(),
+                                    FirstName = DR["FirstName"].ToString(),
+                                    LastName  = DR["LastName"].ToString()
+                                };
+
+                                Users.Add(CurrentUser);
+                            }
                         }
                     }
                 }
@@ -69,7 +84,8 @@ namespace SimpleRESTServer
         {
             long UserID = 0;
             string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
-            string SQLString = "Insert Into Users (Username, FirstName, LastName, Email, Password) Values (@Username, @FirtsName, @LastName, @Email, @Password)";
+            string SQLString = string.Format("Insert Into Users (Username, FirstName, LastName, Email, Password) Values ('{0}', '{1}', '{2}', '{3}', '{4}')" , 
+                                             UserToSave.Username, UserToSave.FirstName, UserToSave.LastName, UserToSave.Email, UserToSave.Password);
 
             using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
@@ -91,11 +107,11 @@ namespace SimpleRESTServer
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
                     {
-                        CMD.Parameters.Add("Username",  MySqlDbType.VarChar,  100).Value  = UserToSave.Username;
-                        CMD.Parameters.Add("FirstName", MySqlDbType.VarChar,  100).Value  = UserToSave.FirstName;
-                        CMD.Parameters.Add("LastName",  MySqlDbType.VarChar,  100).Value  = UserToSave.LastName;
-                        CMD.Parameters.Add("Email",     MySqlDbType.VarChar,  100).Value  = UserToSave.Email;
-                        CMD.Parameters.Add("Password",  MySqlDbType.VarChar,  100).Value  = UserToSave.Password;
+                        //CMD.Parameters.Add("@Username",  MySqlDbType.VarChar,  100).Value  = UserToSave.Username;
+                        //CMD.Parameters.Add("@FirstName", MySqlDbType.VarChar,  100).Value  = UserToSave.FirstName;
+                        //CMD.Parameters.Add("@LastName",  MySqlDbType.VarChar,  100).Value  = UserToSave.LastName;
+                        //CMD.Parameters.Add("@Email",     MySqlDbType.VarChar,  100).Value  = UserToSave.Email;
+                        //CMD.Parameters.Add("@Password",  MySqlDbType.VarChar,  100).Value  = UserToSave.Password;
 
                         CMD.ExecuteNonQuery();
                         UserID = CMD.LastInsertedId;
@@ -170,7 +186,7 @@ namespace SimpleRESTServer
         /// <summary>
         /// Delete a user using his\her username
         /// </summary>
-        /// <param name="Username">Username</param>
+        /// <param name="UserID">Username</param>
         /// <returns></returns>
         public static bool DeleteUser(long UserID)
         {

@@ -68,7 +68,7 @@ namespace SimpleRESTServer.Controllers
         /// <param name="ID"></param>
         /// <param name="Value"></param>
         /// <returns></returns>
-        // PUT: api/Shipment/5
+        // PUT: api/Shipment/?ID=
         public HttpResponseMessage Put(long ID, [FromBody]Shipment Value)
         {
             Value.ShipmentID = ID;
@@ -96,7 +96,7 @@ namespace SimpleRESTServer.Controllers
         /// </summary>
         /// <param name="ID"></param>
         /// <returns></returns>
-        // DELETE: api/Shipment/5
+        // DELETE: api/Shipment/?ID=
         public HttpResponseMessage Delete(long ID)
         {
             HttpResponseMessage Response;

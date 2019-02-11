@@ -489,31 +489,31 @@
         </member>
         <member name="M:SimpleRESTServer.Controllers.ShipmentController.Get(System.Int64)">
             <summary>
-            Get a specific shipment by id
+            Get a specific shipment by ID
             </summary>
-            <param name="id"></param>
+            <param name="ID"></param>
             <returns></returns>
         </member>
         <member name="M:SimpleRESTServer.Controllers.ShipmentController.Post(SimpleRESTServer.Models.Shipment)">
             <summary>
             Create/Save a new shipment
             </summary>
-            <param name="value"></param>
+            <param name="Value"></param>
             <returns></returns>
         </member>
         <member name="M:SimpleRESTServer.Controllers.ShipmentController.Put(System.Int64,SimpleRESTServer.Models.Shipment)">
             <summary>
             Modify a specific shipment by id
             </summary>
-            <param name="id"></param>
-            <param name="value"></param>
+            <param name="ID"></param>
+            <param name="Value"></param>
             <returns></returns>
         </member>
         <member name="M:SimpleRESTServer.Controllers.ShipmentController.Delete(System.Int64)">
             <summary>
             Delete a specific shipment by id
             </summary>
-            <param name="id"></param>
+            <param name="ID"></param>
             <returns></returns>
         </member>
         <member name="M:SimpleRESTServer.Controllers.TripController.Get">
@@ -526,29 +526,29 @@
             <summary>
             Get a specific trip by id
             </summary>
-            <param name="id"></param>
+            <param name="ID"></param>
             <returns></returns>
         </member>
         <member name="M:SimpleRESTServer.Controllers.TripController.Post(SimpleRESTServer.Models.Trip)">
             <summary>
             Create/Save a new trip
             </summary>
-            <param name="value"></param>
+            <param name="Value"></param>
             <returns></returns>
         </member>
         <member name="M:SimpleRESTServer.Controllers.TripController.Put(System.Int64,SimpleRESTServer.Models.Trip)">
             <summary>
             Modify a specific trip by id
             </summary>
-            <param name="id"></param>
-            <param name="value"></param>
+            <param name="ID"></param>
+            <param name="Value"></param>
             <returns></returns>
         </member>
         <member name="M:SimpleRESTServer.Controllers.TripController.Delete(System.Int64)">
             <summary>
             Delete a specific trip by id
             </summary>
-            <param name="id"></param>
+            <param name="ID"></param>
             <returns></returns>
         </member>
         <member name="M:SimpleRESTServer.Controllers.UserController.Get">
@@ -559,31 +559,127 @@
         </member>
         <member name="M:SimpleRESTServer.Controllers.UserController.Get(System.String)">
             <summary>
-            Get a specific user by id
+            Get a specific user by his\her username
             </summary>
-            <param name="id"></param>
+            <param name="Username">Username to check for</param>
             <returns></returns>
         </member>
         <member name="M:SimpleRESTServer.Controllers.UserController.Post(SimpleRESTServer.Models.User)">
             <summary>
             Create/Save a new user
             </summary>
-            <param name="value"></param>
+            <param name="Value"></param>
             <returns></returns>
         </member>
-        <member name="M:SimpleRESTServer.Controllers.UserController.Put(System.String,SimpleRESTServer.Models.User)">
+        <member name="M:SimpleRESTServer.Controllers.UserController.Put(System.Int64,SimpleRESTServer.Models.User)">
             <summary>
             Modify a specific user by username
             </summary>
-            <param name="username"></param>
-            <param name="value"></param>
+            <param name="UserID"></param>
+            <param name="Value"></param>
             <returns></returns>
         </member>
-        <member name="M:SimpleRESTServer.Controllers.UserController.Delete(System.String)">
+        <member name="M:SimpleRESTServer.Controllers.UserController.Delete(System.Int64)">
             <summary>
             Delete a specific user by id
             </summary>
-            <param name="username"></param>
+            <param name="UserID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SimpleRESTServer.ShipmentPersistence.GetShimpments">
+            <summary>
+            Gets All shipments in the database
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SimpleRESTServer.ShipmentPersistence.SaveShipment(SimpleRESTServer.Models.Shipment)">
+            <summary>
+            Save New Shipment to the Database
+            </summary>
+            <param name="ShipmentData"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SimpleRESTServer.ShipmentPersistence.GetShipment(System.Int64)">
+            <summary>
+            Gets a specific Shipment using ID
+            </summary>
+            <param name="ShipmentID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SimpleRESTServer.ShipmentPersistence.DeleteShipment(System.Int64)">
+            <summary>
+            Deletes a Shipment from the database using ID
+            </summary>
+            <param name="ShipmentID">ID of the shipment to be deleted</param>
+            <returns></returns>
+        </member>
+        <member name="M:SimpleRESTServer.ShipmentPersistence.UpdateShipment(SimpleRESTServer.Models.Shipment)">
+            <summary>
+            Update Shipment Data using its ID
+            </summary>
+            <param name="ShipmentData"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SimpleRESTServer.TripPersistence.SaveTrip(SimpleRESTServer.Models.Trip)">
+            <summary>
+            Save a New Trip to Database
+            </summary>
+            <param name="TripData"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SimpleRESTServer.TripPersistence.GetTrip(System.Int64)">
+            <summary>
+            Get Trip Data based on its ID
+            </summary>
+            <param name="ID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SimpleRESTServer.TripPersistence.DeleteTrip(System.Int64)">
+            <summary>
+            Delete Trip Data based on its ID
+            </summary>
+            <param name="ID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SimpleRESTServer.TripPersistence.UpdateTrips(SimpleRESTServer.Models.Trip)">
+            <summary>
+            Update Trip Data Using its Data
+            </summary>
+            <param name="TripData"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SimpleRESTServer.UserPersistence.GetUsers">
+            <summary>
+            Returns all the users in the database
+            </summary>
+            <returns>List of all existing users</returns>
+        </member>
+        <member name="M:SimpleRESTServer.UserPersistence.SaveUser(SimpleRESTServer.Models.User)">
+            <summary>
+            Function to Create a new user account
+            </summary>
+            <param name="UserToSave">New user information</param>
+            <returns>User ID</returns>
+        </member>
+        <member name="M:SimpleRESTServer.UserPersistence.GetUser(System.String)">
+            <summary>
+            Searchs for a specific user using the username
+            </summary>
+            <param name="Username">User Name</param>
+            <returns>User Personal Information</returns>
+        </member>
+        <member name="M:SimpleRESTServer.UserPersistence.DeleteUser(System.Int64)">
+            <summary>
+            Delete a user using his\her username
+            </summary>
+            <param name="UserID">Username</param>
+            <returns></returns>
+        </member>
+        <member name="M:SimpleRESTServer.UserPersistence.UpdateUser(SimpleRESTServer.Models.User)">
+            <summary>
+            Update a user using his\her username
+            </summary>
+            <param name="UserData"></param>
             <returns></returns>
         </member>
     </members>
