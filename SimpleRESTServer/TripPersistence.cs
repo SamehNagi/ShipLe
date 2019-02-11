@@ -73,39 +73,42 @@ namespace SimpleRESTServer
         /// <returns></returns>
         public long SaveTrip(Trip TripData)
         {
-            string SQLString = "";
+            long TripID = 0;
+            string SQLString = string.Format("Insert Into Trips " +
+                               "(UserID, Source_Country, Destination_Country, Transportation, Travel_Date, Arival_Date, Weight, Note) " +
+                               "Vales ({0}, {1}, {2}, {3}, #{4}#, #{5}#, {6}, '{7}')", 
+                               TripData.UserID, TripData.Source_Country, TripData.Destination_Country, TripData.Transportation, 
+                               TripData.Travel_Date, TripData.Arival_Date, TripData.Available_Weight, TripData.TripNote);
             string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
 
-			MySql.Data.MySqlClient.MySqlConnection conn;
-            conn = new MySql.Data.MySqlClient.MySqlConnection();
-			try
-			{
-				conn.ConnectionString = myConnectionString;
-                conn.Open();
-				
-				string sqlString = "INSERT INTO Trips (Username, From_City_Country, To_City_Country, TransportationType, OutboundTripDetails_Day, " +
-                                "OutboundTripDetails_Time, OutboundTripDetails_Duration, AddAReturnTrip, ReturnTripDetails_Day, ReturnTripDetails_Time, " +
-                                "ReturnTripDetails_Duration, AvailableWeight, ExcludedCategories, TripNote) " +
-                                "VALUES ('" + tripToSave.Username + "', '" + tripToSave.From_City_Country + "', '" + tripToSave.To_City_Country + "', " +
-                                            "'" + tripToSave.Transportation + "', '" + tripToSave.OutboundTripDetails_Day.ToString("yyyy-MM-dd") + "', " +
-                                            "'" + tripToSave.OutboundTripDetails_Time + "', " + tripToSave.OutboundTripDetails_Duration + ", " +
-                                            "" + tripToSave.AddAReturnTrip + ", '" + tripToSave.ReturnTripDetails_Day.ToString("yyyy-MM-dd") + "', " +
-                                            "'" + tripToSave.ReturnTripDetails_Time + "', " + tripToSave.ReturnTripDetails_Duration + ", " +
-                                            "" + tripToSave.AvailableWeight + ", '" + tripToSave.ExcludedCategories + "', '" + tripToSave.TripNote + "')";
-				
-				MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand(sqlString, conn);
-				cmd.ExecuteNonQuery();
-				long tripId = cmd.LastInsertedId;
-				return tripId;
-			}
-			catch (MySql.Data.MySqlClient.MySqlException ex)
+            using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
             {
-                throw ex;
+                try
+                {
+                    for (int I = 0; I < 3; I++)
+                    {
+                        Conn.Open();
+                        if (Conn.State == ConnectionState.Open) break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //Action to take in case of connection faild
+                }
+
+                if (Conn.State == ConnectionState.Open)
+                {
+                    using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
+                    {
+                        int AffectedRows = CMD.ExecuteNonQuery();
+
+                        if (AffectedRows != 0) TripID = CMD.LastInsertedId;
+                    }
+                }
             }
-            finally
-            {
-                conn.Close();
-            }
+
+            return TripID;
         }
 
         /// <summary>
