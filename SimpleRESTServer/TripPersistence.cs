@@ -13,7 +13,7 @@ namespace SimpleRESTServer
 {
     public class TripPersistence
     {
-        public List<Trip> GetTrips()
+        public static List<Trip> GetTrips()
         {
             List<Trip> Trips = new List<Trip>();
 
@@ -71,7 +71,7 @@ namespace SimpleRESTServer
         /// </summary>
         /// <param name="TripData"></param>
         /// <returns></returns>
-        public long SaveTrip(Trip TripData)
+        public static long SaveTrip(Trip TripData)
         {
             long TripID = 0;
             string SQLString = string.Format("Insert Into Trips " +
@@ -116,7 +116,7 @@ namespace SimpleRESTServer
         /// </summary>
         /// <param name="ID"></param>
         /// <returns></returns>
-        public Trip GetTrip(long ID)
+        public static Trip GetTrip(long ID)
         {
             Trip TripData = null;
             string SQLString = "Select * From Trips Where TripID=" + ID.ToString();
@@ -171,7 +171,7 @@ namespace SimpleRESTServer
         /// </summary>
         /// <param name="ID"></param>
         /// <returns></returns>
-        public bool DeleteTrip(long ID)
+        public static bool DeleteTrip(long ID)
         {
             bool Deleted = false;
             string SQLString = "Delete From Trips Where TripID=" + ID.ToString();
@@ -212,7 +212,7 @@ namespace SimpleRESTServer
         /// </summary>
         /// <param name="TripData"></param>
         /// <returns></returns>
-        public bool UpdateTrips(Trip TripData)
+        public static bool UpdateTrips(Trip TripData)
         {
             bool Updated = false;
             string SQLString = "Update Trips Set "  +

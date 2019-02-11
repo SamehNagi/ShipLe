@@ -16,102 +16,97 @@ namespace SimpleRESTServer.Controllers
         /// </summary>
         /// <returns></returns>
         // GET: api/Trip
-        public ArrayList Get()
+        public List<Trip> Get()
         {
-            TripPersistence tp = new TripPersistence();
-            return tp.getTrips();
+            return TripPersistence.GetTrips();
         }
 
         /// <summary>
         /// Get a specific trip by id
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="ID"></param>
         /// <returns></returns>
         // GET: api/Trip/5
-        public Trip Get(long id)
+        public Trip Get(long ID)
         {
-            TripPersistence tp = new TripPersistence();
-            Trip trip = tp.getTrip(id);
-            if (trip == null)
+            Trip TripData = TripPersistence.GetTrip(ID);
+            if (TripData == null)
             {
+                //TBD: Wrong Action, To be removed
                 throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.NotFound));
             }
 
-            return trip;
+            return TripData;
         }
 
         /// <summary>
         /// Create/Save a new trip
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="Value"></param>
         /// <returns></returns>
         // POST: api/Trip
-        public HttpResponseMessage Post([FromBody]Trip value)
+        public HttpResponseMessage Post([FromBody]Trip Value)
         {
-            TripPersistence tp = new TripPersistence();
-            long id;
-            id = tp.saveTrip(value);
+            long ID = TripPersistence.SaveTrip(Value);
 
             HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created);
             // !Comment: This is used to set the location of the posted id in the header after the post is done.
-            response.Headers.Location = new Uri(Request.RequestUri, string.Format("trip/{0}", id));
+            response.Headers.Location = new Uri(Request.RequestUri, string.Format("trip/{0}", ID));
             return response;
         }
 
         /// <summary>
         /// Modify a specific trip by id
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="value"></param>
+        /// <param name="ID"></param>
+        /// <param name="Value"></param>
         /// <returns></returns>
         // PUT: api/Trip/5
-        public HttpResponseMessage Put(long id, [FromBody]Trip value)
+        public HttpResponseMessage Put(long ID, [FromBody]Trip Value)
         {
-            TripPersistence tp = new TripPersistence();
-            bool recordExisted = false;
-            recordExisted = tp.updateTrip(id, value);
+            Value.TripID = ID;
+            bool Updated = TripPersistence.UpdateTrips(Value);
+            HttpResponseMessage Response;
 
-            HttpResponseMessage response;
-
-            if (recordExisted)
+            if (Updated)
             {
+                // TBD: This response should be removed in order to differentiate between connection faild and system specific faults
                 // !Comment: return 402 -> record found with no content.
-                response = Request.CreateResponse(HttpStatusCode.NoContent);
+                Response = Request.CreateResponse(HttpStatusCode.NoContent);
             }
             else
             {
+                // TBD: This response should be removed in order to differentiate between connection faild and system specific faults
                 // !Comment: return 404 -> record not found.
-                response = Request.CreateResponse(HttpStatusCode.NotFound);
+                Response = Request.CreateResponse(HttpStatusCode.NotFound);
             }
-            return response;
+            return Response;
         }
 
         /// <summary>
         /// Delete a specific trip by id
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="ID"></param>
         /// <returns></returns>
         // DELETE: api/Trip/5
-        public HttpResponseMessage Delete(long id)
+        public HttpResponseMessage Delete(long ID)
         {
-            TripPersistence tp = new TripPersistence();
-            bool recordExisted = false;
+            bool Deleted = TripPersistence.DeleteTrip(ID);
+            HttpResponseMessage Response;
 
-            recordExisted = tp.deleteTrip(id);
-
-            HttpResponseMessage response;
-
-            if (recordExisted)
+            if (Deleted)
             {
+                // TBD: This response should be removed in order to differentiate between connection faild and system specific faults
                 // !Comment: return 402 -> record found with no content.
-                response = Request.CreateResponse(HttpStatusCode.NoContent);
+                Response = Request.CreateResponse(HttpStatusCode.NoContent);
             }
             else
             {
+                // TBD: This response should be removed in order to differentiate between connection faild and system specific faults
                 // !Comment: return 404 -> record not found.
-                response = Request.CreateResponse(HttpStatusCode.NotFound);
+                Response = Request.CreateResponse(HttpStatusCode.NotFound);
             }
-            return response;
+            return Response;
         }
     }
 }
