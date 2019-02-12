@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using SimpleRESTServer.Models;
+using System.Data;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using System.Collections;
@@ -29,7 +30,7 @@ namespace SimpleRESTServer
                     for (int I = 0; I < 3; I++)
                     {
                         Conn.Open();
-                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                        if (Conn.State == ConnectionState.Open) break;
                     }
 
                 }
@@ -38,7 +39,7 @@ namespace SimpleRESTServer
 
                 }
 
-                if (Conn.State == System.Data.ConnectionState.Open)
+                if (Conn.State == ConnectionState.Open)
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
                     {
@@ -52,9 +53,9 @@ namespace SimpleRESTServer
                                 ShipmentID          = long.Parse(DR["ShipmentID"].ToString()),
                                 TripID              = long.Parse(DR["TripID"].ToString()),
                                 UserID              = long.Parse(DR["UserID"].ToString()),
-                                Source_Country      = DR["Source_Country"].ToString(),
-                                Destination_Country = DR["Destination_Country"].ToString(),
-                                Delivery_Date       = DateTime.Parse(DR["Delivery_Date"].ToString()),
+                                SourceCountry       = DR["SourceCountry"].ToString(),
+                                DestinationCountry  = DR["DestinationCountry"].ToString(),
+                                DeliveryDate        = DateTime.Parse(DR["DeliveryDate"].ToString()),
                                 ShipmentName        = DR["ShipmentName"].ToString(),
                                 ShipmentNote        = DR["ShipmentNote"].ToString()
                             };
@@ -76,13 +77,14 @@ namespace SimpleRESTServer
         public static long SaveShipment(Shipment ShipmentData)
         {
             long ShipmentID = 0;
-            string DeliveryDate = string.Format("{0}-{1}-{2}",  ShipmentData.Delivery_Date.Year, ShipmentData.Delivery_Date.Day, ShipmentData.Delivery_Date.Month);
+            string DeliveryDate = string.Format("yyyy-MM-dd hh:mm tt",  ShipmentData.DeliveryDate);
 
-            string SQLQuery = string.Format("INSERT INTO Shipments (TripID, UserID, Source_Country, Destination_Country, " +
-                              "Delivery_Date, ShipmentName, ShipmentNote) Values ({0}, {1}, {2}, {3}, '{4}', '{5}', '{6}')",
-                              ShipmentData.TripID, ShipmentData.UserID, ShipmentData.Source_Country,
-                              ShipmentData.Destination_Country, DeliveryDate, ShipmentData.ShipmentName,
+            string SQLQuery = string.Format("INSERT INTO Shipments (TripID, UserID, SourceCountry, DestinationCountry, " +
+                              "DeliveryDate, ShipmentName, ShipmentNote) Values ({0}, {1}, {2}, {3}, '{4}', '{5}', '{6}')",
+                              ShipmentData.TripID, ShipmentData.UserID, ShipmentData.SourceCountry,
+                              ShipmentData.DestinationCountry, DeliveryDate, ShipmentData.ShipmentName,
                               ShipmentData.ShipmentNote);
+
             string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
 
             using (MySqlConnection Conn = new MySqlConnection(ConnectionString))
@@ -92,7 +94,7 @@ namespace SimpleRESTServer
                     for (int I = 0; I < 3; I++)
                     {
                         Conn.Open();
-                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                        if (Conn.State == ConnectionState.Open) break;
                     }
 
                 }
@@ -101,7 +103,7 @@ namespace SimpleRESTServer
                     //Check if the connection is faild
                 }
 
-                if (Conn.State == System.Data.ConnectionState.Open)
+                if (Conn.State == ConnectionState.Open)
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
                     {
@@ -132,7 +134,7 @@ namespace SimpleRESTServer
                     for (int I = 0; I < 3; I++)
                     {
                         Conn.Open();
-                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                        if (Conn.State == ConnectionState.Open) break;
                     }
 
                 }
@@ -141,7 +143,7 @@ namespace SimpleRESTServer
 
                 }
 
-                if (Conn.State == System.Data.ConnectionState.Open)
+                if (Conn.State == ConnectionState.Open)
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
                     {
@@ -154,9 +156,9 @@ namespace SimpleRESTServer
                                 ShipmentID          = long.Parse(DR["ShipmentID"].ToString()),
                                 TripID              = long.Parse(DR["TripID"].ToString()),
                                 UserID              = long.Parse(DR["UserID"].ToString()),
-                                Source_Country      = DR["Source_Country"].ToString(),
-                                Destination_Country = DR["Destination_Country"].ToString(),
-                                Delivery_Date       = DateTime.Parse(DR["Delivery_Date"].ToString()),
+                                SourceCountry       = DR["SourceCountry"].ToString(),
+                                DestinationCountry  = DR["DestinationCountry"].ToString(),
+                                DeliveryDate        = DateTime.Parse(DR["DeliveryDate"].ToString()),
                                 ShipmentName        = DR["ShipmentName"].ToString(),
                                 ShipmentNote        = DR["ShipmentNote"].ToString()
                             };
@@ -186,7 +188,7 @@ namespace SimpleRESTServer
                     for (int I = 0; I < 3; I++)
                     {
                         Conn.Open();
-                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                        if (Conn.State == ConnectionState.Open) break;
                     }
 
                 }
@@ -195,7 +197,7 @@ namespace SimpleRESTServer
 
                 }
 
-                if (Conn.State == System.Data.ConnectionState.Open)
+                if (Conn.State == ConnectionState.Open)
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
                     {
@@ -216,13 +218,13 @@ namespace SimpleRESTServer
         {
             bool Updated = false;
             string SQLQuery = "Update Shipments Set " +
-                                                    "TripID              = @TripID,"          +
-                                                    "Username            = @Username,"        +
-                                                    "From_City_Country   = @FromCountry,"     +
-                                                    "To_City_Country     = @ToCountry,"       +
-                                                    "IWantItBefore       = @DeliveryDate,"    +
-                                                    "ShipmentName        = @Shipmentname,"    +
-                                                    "ShipmentNote        = @ShipmentNote,"    +
+                                                    "TripID              = @TripID,"              +
+                                                    "UserID              = @UserID,"              +
+                                                    "SourceCountry       = @SourceCountry,"       +
+                                                    "DestinationCountry  = @DestinationCountry,"  +
+                                                    "DeliveryDate        = @DeliveryDate,"        +
+                                                    "ShipmentName        = @Shipmentname,"        +
+                                                    "ShipmentNote        = @ShipmentNote,"        +
                                                     "Where ShipmentID    = @ShipmentID";
 
             string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
@@ -234,7 +236,7 @@ namespace SimpleRESTServer
                     for (int I = 0; I < 3; I++)
                     {
                         Conn.Open();
-                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                        if (Conn.State == ConnectionState.Open) break;
                     }
 
                 }
@@ -243,18 +245,18 @@ namespace SimpleRESTServer
                     //Check for what to do in case the connection faild
                 }
 
-                if (Conn.State == System.Data.ConnectionState.Open)
+                if (Conn.State == ConnectionState.Open)
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
                     {
-                        CMD.Parameters.Add("@TripID",       MySqlDbType.Int32).Value   = ShipmentData.TripID;
-                        CMD.Parameters.Add("@Username",     MySqlDbType.VarChar).Value = ShipmentData.UserID;
-                        CMD.Parameters.Add("@FromCountry",  MySqlDbType.VarChar).Value = ShipmentData.Source_Country;
-                        CMD.Parameters.Add("@ToCountry",    MySqlDbType.VarChar).Value = ShipmentData.Destination_Country;
-                        CMD.Parameters.Add("@DeliveryDate", MySqlDbType.Date).Value    = ShipmentData.Delivery_Date;
-                        CMD.Parameters.Add("@Shipmentname", MySqlDbType.VarChar).Value = ShipmentData.ShipmentName;
-                        CMD.Parameters.Add("@ShipmentNote", MySqlDbType.VarChar).Value = ShipmentData.ShipmentNote;
-
+                        CMD.Parameters.Add("@ShipmentID",         MySqlDbType.VarChar).Value   = ShipmentData.ShipmentID;
+                        CMD.Parameters.Add("@TripID",             MySqlDbType.Int32).Value     = ShipmentData.TripID;
+                        CMD.Parameters.Add("@UserID",             MySqlDbType.Int32).Value     = ShipmentData.UserID;
+                        CMD.Parameters.Add("@SourceCountry",      MySqlDbType.Int32).Value     = ShipmentData.SourceCountry;
+                        CMD.Parameters.Add("@DestinationCountry", MySqlDbType.Int32).Value     = ShipmentData.DestinationCountry;
+                        CMD.Parameters.Add("@DeliveryDate",       MySqlDbType.Date).Value      = ShipmentData.DeliveryDate;
+                        CMD.Parameters.Add("@Shipmentname",       MySqlDbType.VarChar).Value   = ShipmentData.ShipmentName;
+                        CMD.Parameters.Add("@ShipmentNote",       MySqlDbType.VarChar).Value   = ShipmentData.ShipmentNote;
                         int AffectedRows = CMD.ExecuteNonQuery();
                         if (AffectedRows > 0) Updated = true;
                     }

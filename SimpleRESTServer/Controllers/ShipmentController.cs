@@ -31,7 +31,6 @@ namespace SimpleRESTServer.Controllers
         {
             Shipment ShipmentData = ShipmentPersistence.GetShipment(ID);
 
-
             return ShipmentData;
         }
 
@@ -41,25 +40,11 @@ namespace SimpleRESTServer.Controllers
         /// <param name="Value"></param>
         /// <returns></returns>
         // POST: api/Shipment
-        public HttpResponseMessage Post([FromBody]Shipment Value)
+        public long Post([FromBody]Shipment Value)
         {
-            HttpResponseMessage Response;
             long ID = ShipmentPersistence.SaveShipment(Value);
 
-            if (ID != 0)
-            {
-                // !Comment: This is used to set the location of the posted id in the header after the post is done.
-                Response = Request.CreateResponse(HttpStatusCode.Created);
-                Response.Headers.Location = new Uri(Request.RequestUri, string.Format("shipment/{0}", ID));
-            }
-            else
-            {
-                // !Comment: This is used to set the location of the posted id in the header after the post is done.
-                Response = Request.CreateResponse(HttpStatusCode.BadRequest);
-                Response.Headers.Location = new Uri(Request.RequestUri, "Creating New Shipment Failed");
-            }
-
-            return Response;
+            return ID;
         }
 
         /// <summary>
@@ -69,26 +54,12 @@ namespace SimpleRESTServer.Controllers
         /// <param name="Value"></param>
         /// <returns></returns>
         // PUT: api/Shipment/?ID=
-        public HttpResponseMessage Put(long ID, [FromBody]Shipment Value)
+        public bool Put(long ID, [FromBody]Shipment Value)
         {
             Value.ShipmentID = ID;
-            HttpResponseMessage Response;
             bool Updated = ShipmentPersistence.UpdateShipment(Value);
 
-
-            if (Updated)
-            {
-                // TBD: Should not use these responses in order not to get confused with connection faild
-                // !Comment: return 402 -> record found with no content.
-                Response = Request.CreateResponse(HttpStatusCode.NoContent);
-            }
-            else
-            {
-                // TBD: Should not use these responses in order not to get confused with connection faild
-                // !Comment: return 404 -> record not found.
-                Response = Request.CreateResponse(HttpStatusCode.NotFound);
-            }
-            return Response;
+            return Updated;
         }
 
         /// <summary>
@@ -97,25 +68,11 @@ namespace SimpleRESTServer.Controllers
         /// <param name="ID"></param>
         /// <returns></returns>
         // DELETE: api/Shipment/?ID=
-        public HttpResponseMessage Delete(long ID)
+        public bool Delete(long ID)
         {
-            HttpResponseMessage Response;
             bool Deleted = ShipmentPersistence.DeleteShipment(ID);
 
-            if (Deleted)
-            {
-                // TBD: Should not use these responses in order not to get confused with connection faild
-                // !Comment: return 402 -> record found with no content.
-                Response = Request.CreateResponse(HttpStatusCode.NoContent);
-            }
-            else
-            {
-                // TBD: Should not use these responses in order not to get confused with connection faild
-                // !Comment: return 404 -> record not found.
-                Response = Request.CreateResponse(HttpStatusCode.NotFound);
-            }
-
-            return Response;
+            return Deleted;
         }
     }
 }

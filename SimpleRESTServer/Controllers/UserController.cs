@@ -31,29 +31,8 @@ namespace SimpleRESTServer.Controllers
         // GET: api/User/?Username=
         public User Get(string Username)
         {
-            User udtResult = new User();
-            User ResultUser = UserPersistence.GetUser(Username);
-            if (Request.Headers.Contains("Password"))
-            {
-                string Password = Request.Headers.GetValues("Password").First();
-            }
-
-            if (ResultUser != null)
-            {
-                udtResult.UserID    = ResultUser.UserID;
-                udtResult.Username  = ResultUser.Username;
-                udtResult.FirstName = ResultUser.FirstName;
-                udtResult.LastName  = ResultUser.LastName;
-                udtResult.Email     = ResultUser.Email;
-                udtResult.Password  = ResultUser.Password;
-            }
-            else
-            {
-                /*To be Changed*/
-                throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.NotFound));
-            }
-
-            return ResultUser;
+            User UserData = UserPersistence.GetUser(Username);
+            return UserData;
         }
 
         /// <summary>
@@ -62,81 +41,39 @@ namespace SimpleRESTServer.Controllers
         /// <param name="Value"></param>
         /// <returns></returns>
         // POST: api/User
-        public HttpResponseMessage Post([FromBody]User Value)
+        public long Post([FromBody]User Value)
         {
-            long id;
-            id = UserPersistence.SaveUser(Value);
+            long ID = UserPersistence.SaveUser(Value);
 
-            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created);
-            // !Comment: This is used to set the location of the posted id in the header after the post is done.
-            response.Headers.Location = new Uri(Request.RequestUri, string.Format("user/{0}", id));
-            return response;
+            return ID;
         }
 
         /// <summary>
         /// Modify a specific user by username
         /// </summary>
-        /// <param name="UserID"></param>
+        /// <param name="ID"></param>
         /// <param name="Value"></param>
         /// <returns></returns>
         // PUT: api/User/?UserID=
-        public HttpResponseMessage Put(long UserID, [FromBody]User Value)
+        public bool Put(long ID, [FromBody]User Value)
         {
-            bool recordExisted = false;
-            User UserData = new User() 
-            { 
-                UserID    = UserID,
-                Username  = Value.Username , 
-                FirstName = Value.FirstName, 
-                LastName  = Value.LastName, 
-                Email     = Value.Email, 
-                Password  = Value.Password
-            };
+            Value.UserID = ID;
+            bool Updated = UserPersistence.UpdateUser(Value);
 
-            recordExisted = UserPersistence.UpdateUser(UserData);
-
-
-            HttpResponseMessage response;
-
-            if (recordExisted)
-            {
-                // !Comment: return 402 -> record found with no content.
-                response = Request.CreateResponse(HttpStatusCode.NoContent);
-            }
-            else
-            {
-                // !Comment: return 404 -> record not found.
-                response = Request.CreateResponse(HttpStatusCode.NotFound);
-            }
-            return response;
+            return Updated;
         }
 
         /// <summary>
         /// Delete a specific user by id
         /// </summary>
-        /// <param name="UserID"></param>
+        /// <param name="ID"></param>
         /// <returns></returns>
         // DELETE: api/User/?UserID=
-        public HttpResponseMessage Delete(long UserID)
+        public bool Delete(long ID)
         {
-            bool recordExisted = false;
-            User UserData = new User() { UserID = UserID };
+            bool Deleted = UserPersistence.DeleteUser(ID);
 
-            recordExisted = UserPersistence.DeleteUser(UserID);
-
-            HttpResponseMessage response;
-
-            if (recordExisted)
-            {
-                // !Comment: return 402 -> record found with no content.
-                response = Request.CreateResponse(HttpStatusCode.NoContent);
-            }
-            else
-            {
-                // !Comment: return 404 -> record not found.
-                response = Request.CreateResponse(HttpStatusCode.NotFound);
-            }
-            return response;
+            return Deleted;
         }
     }
 }

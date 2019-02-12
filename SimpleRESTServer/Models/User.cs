@@ -13,9 +13,5 @@ namespace SimpleRESTServer.Models
         public String LastName { get; set; }
         public String Email { get; set; }
         public String Password { get; set; }
-
-        //public Double PayRate { get; set; }
-        //public DateTime StartDate { get; set; }
-        //public DateTime EndDate { get; set; }
     }
 }

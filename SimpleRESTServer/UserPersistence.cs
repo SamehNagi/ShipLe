@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using SimpleRESTServer.Models;
+using System.Data;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using System.Collections;
@@ -31,7 +32,7 @@ namespace SimpleRESTServer
                         for(int Count = 0; Count < 3; Count++)
                         {
                             Conn.Open();
-                            if (Conn.State == System.Data.ConnectionState.Open) break;
+                            if (Conn.State == ConnectionState.Open) break;
                         }
                     }
                     catch(Exception ex)
@@ -39,7 +40,7 @@ namespace SimpleRESTServer
 
                     }
 
-                    if (Conn.State == System.Data.ConnectionState.Open)
+                    if (Conn.State == ConnectionState.Open)
                     {
                         using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
                         {
@@ -94,7 +95,7 @@ namespace SimpleRESTServer
                     for (int I = 0; I < 3; I++)
                     {
                         Conn.Open();
-                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                        if (Conn.State == ConnectionState.Open) break;
                     }
 
                 }
@@ -103,16 +104,10 @@ namespace SimpleRESTServer
 
                 }
 
-                if (Conn.State == System.Data.ConnectionState.Open)
+                if (Conn.State == ConnectionState.Open)
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
                     {
-                        //CMD.Parameters.Add("@Username",  MySqlDbType.VarChar,  100).Value  = UserToSave.Username;
-                        //CMD.Parameters.Add("@FirstName", MySqlDbType.VarChar,  100).Value  = UserToSave.FirstName;
-                        //CMD.Parameters.Add("@LastName",  MySqlDbType.VarChar,  100).Value  = UserToSave.LastName;
-                        //CMD.Parameters.Add("@Email",     MySqlDbType.VarChar,  100).Value  = UserToSave.Email;
-                        //CMD.Parameters.Add("@Password",  MySqlDbType.VarChar,  100).Value  = UserToSave.Password;
-
                         CMD.ExecuteNonQuery();
                         UserID = CMD.LastInsertedId;
                     }
@@ -141,7 +136,7 @@ namespace SimpleRESTServer
                     for (int I = 0; I < 3; I++ )
                     {
                         Conn.Open();
-                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                        if (Conn.State == ConnectionState.Open) break;
                     }
 
                 }
@@ -151,12 +146,12 @@ namespace SimpleRESTServer
                 }
 
                 /*Check Connection State*/
-                if(Conn.State == System.Data.ConnectionState.Open)
+                if(Conn.State == ConnectionState.Open)
                 {
                     MySqlParameter Parameter = new MySqlParameter() 
                     { 
                         ParameterName ="@Username", 
-                        DbType = System.Data.DbType.String, 
+                        DbType = DbType.String, 
                         Size = 100, Value = Username
                     };
 
@@ -202,7 +197,7 @@ namespace SimpleRESTServer
                     for (int I = 0; I < 3; I++)
                     {
                         Conn.Open();
-                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                        if (Conn.State == ConnectionState.Open) break;
                     }
 
                 }
@@ -212,14 +207,14 @@ namespace SimpleRESTServer
                 }
 
                 /*Check Connection State*/
-                if (Conn.State == System.Data.ConnectionState.Open)
+                if (Conn.State == ConnectionState.Open)
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
                     {
                         MySqlParameter Parameter = new MySqlParameter()
                         {
                             ParameterName = "@ID",
-                            DbType = System.Data.DbType.Int32,
+                            DbType = DbType.Int32,
                             Size = 100,
                             Value = UserID
                         };
@@ -255,7 +250,7 @@ namespace SimpleRESTServer
                     for (int I = 0; I < 3; I++)
                     {
                         Conn.Open();
-                        if (Conn.State == System.Data.ConnectionState.Open) break;
+                        if (Conn.State == ConnectionState.Open) break;
                     }
 
                 }
@@ -265,7 +260,7 @@ namespace SimpleRESTServer
                 }
 
                 /*Check Connection State*/
-                if (Conn.State == System.Data.ConnectionState.Open)
+                if (Conn.State == ConnectionState.Open)
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLString, Conn))
                     {

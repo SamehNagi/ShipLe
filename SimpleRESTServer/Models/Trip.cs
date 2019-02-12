@@ -9,12 +9,12 @@ namespace SimpleRESTServer.Models
     {
         public long TripID { get; set; }
         public long UserID { get; set; }
-        public long Source_Country { get; set; }
-        public long Destination_Country { get; set; } 
-        public long Transportation { get; set; }
-        public DateTime Travel_Date { get; set; } 
-        public DateTime Arrival_Date { get; set; }
+        public long SourceCountry { get; set; }
+        public long DestinationCountry { get; set; } 
+        public long TransportationType { get; set; }
+        public DateTime TravelDate { get; set; } 
+        public DateTime ArrivalDate { get; set; }
+        public float  AvailableWeight { get; set; }
         public String TripNote { get; set; }
-        public float  Available_Weight { get; set; }
     }
 }

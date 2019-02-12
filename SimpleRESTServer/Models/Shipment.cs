@@ -10,9 +10,9 @@ namespace SimpleRESTServer.Models
         public long ShipmentID { get; set; }
         public long TripID { get; set; }
         public long UserID { get; set; }
-        public String Source_Country { get; set; }
-        public String Destination_Country { get; set; }
-        public DateTime Delivery_Date { get; set; }
+        public String SourceCountry { get; set; }
+        public String DestinationCountry { get; set; }
+        public DateTime DeliveryDate { get; set; }
         public String ShipmentName { get; set; }
         public String ShipmentNote { get; set; }
     }

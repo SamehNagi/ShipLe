@@ -30,11 +30,6 @@ namespace SimpleRESTServer.Controllers
         public Trip Get(long ID)
         {
             Trip TripData = TripPersistence.GetTrip(ID);
-            if (TripData == null)
-            {
-                //TBD: Wrong Action, To be removed
-                throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.NotFound));
-            }
 
             return TripData;
         }
@@ -45,14 +40,11 @@ namespace SimpleRESTServer.Controllers
         /// <param name="Value"></param>
         /// <returns></returns>
         // POST: api/Trip
-        public HttpResponseMessage Post([FromBody]Trip Value)
+        public long Post([FromBody]Trip Value)
         {
             long ID = TripPersistence.SaveTrip(Value);
 
-            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created);
-            // !Comment: This is used to set the location of the posted id in the header after the post is done.
-            response.Headers.Location = new Uri(Request.RequestUri, string.Format("trip/{0}", ID));
-            return response;
+            return ID;
         }
 
         /// <summary>
@@ -62,25 +54,12 @@ namespace SimpleRESTServer.Controllers
         /// <param name="Value"></param>
         /// <returns></returns>
         // PUT: api/Trip/?ID=
-        public HttpResponseMessage Put(long ID, [FromBody]Trip Value)
+        public bool Put(long ID, [FromBody]Trip Value)
         {
             Value.TripID = ID;
             bool Updated = TripPersistence.UpdateTrips(Value);
-            HttpResponseMessage Response;
 
-            if (Updated)
-            {
-                // TBD: This response should be removed in order to differentiate between connection faild and system specific faults
-                // !Comment: return 402 -> record found with no content.
-                Response = Request.CreateResponse(HttpStatusCode.NoContent);
-            }
-            else
-            {
-                // TBD: This response should be removed in order to differentiate between connection faild and system specific faults
-                // !Comment: return 404 -> record not found.
-                Response = Request.CreateResponse(HttpStatusCode.NotFound);
-            }
-            return Response;
+            return Updated;
         }
 
         /// <summary>
@@ -89,24 +68,11 @@ namespace SimpleRESTServer.Controllers
         /// <param name="ID"></param>
         /// <returns></returns>
         // DELETE: api/Trip/?ID=
-        public HttpResponseMessage Delete(long ID)
+        public bool Delete(long ID)
         {
             bool Deleted = TripPersistence.DeleteTrip(ID);
-            HttpResponseMessage Response;
 
-            if (Deleted)
-            {
-                // TBD: This response should be removed in order to differentiate between connection faild and system specific faults
-                // !Comment: return 402 -> record found with no content.
-                Response = Request.CreateResponse(HttpStatusCode.NoContent);
-            }
-            else
-            {
-                // TBD: This response should be removed in order to differentiate between connection faild and system specific faults
-                // !Comment: return 404 -> record not found.
-                Response = Request.CreateResponse(HttpStatusCode.NotFound);
-            }
-            return Response;
+            return Deleted;
         }
     }
 }
