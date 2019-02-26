@@ -54,7 +54,7 @@ namespace SimpleRESTServer
                                 ArrivalDate         = DateTime.Parse(DR["ArrivalDate"].ToString()),
                                 TransportationType  = long.Parse(DR["TransportationType"].ToString()),
                                 TripNote            = DR["TripNote"].ToString(),
-                                AvailableWeight     = float.Parse(DR["Weight"].ToString())
+                                AvailableWeight = float.Parse(DR["AvailableWeight"].ToString())
                             };
 
                             Trips.Add(TripData);
@@ -74,13 +74,11 @@ namespace SimpleRESTServer
         public static long SaveTrip(Trip TripData)
         {
             long TripID = 0;
-            string TravelDate = string.Format("yyyy-MM-dd hh:mm tt", TripData.TravelDate);
-            string ArrivalDate = string.Format("yyyy-MM-dd hh:mm tt", TripData.ArrivalDate);
-
-            ArrivalDate = TripData.ArrivalDate.ToString("yyyy-dd-mm hh:MM t");
+            string TravelDate = TripData.TravelDate.ToString("yyyy-dd-MM hh:mm");
+            string ArrivalDate = TripData.ArrivalDate.ToString("yyyy-dd-MM hh:mm");
 
             string SQLString = string.Format("Insert Into Trips " +
-                               "(UserID, SourceCountry, DestinationCountry, TravelDate, ArrivalDate, Weight, TransportationType, TripNote) " +
+                               "(UserID, SourceCountry, DestinationCountry, TravelDate, ArrivalDate, AvailableWeight, TransportationType, TripNote) " +
                                "Values ({0}, {1}, {2}, '{3}', '{4}', {5}, {6}, '{7}')", 
                                TripData.UserID, TripData.SourceCountry, TripData.DestinationCountry,
                                TravelDate, ArrivalDate, TripData.AvailableWeight.ToString(), TripData.TransportationType, TripData.TripNote);
@@ -160,7 +158,7 @@ namespace SimpleRESTServer
                                 TravelDate          = DateTime.Parse(DR["TravelDate"].ToString()),
                                 ArrivalDate         = DateTime.Parse(DR["ArrivalDate"].ToString()),
                                 TransportationType  = long.Parse(DR["TransportationType"].ToString()),
-                                AvailableWeight     = float.Parse(DR["Weight"].ToString()),
+                                AvailableWeight     = float.Parse(DR["AvailableWeight"].ToString()),
                                 TripNote            = DR["TripNote"].ToString()
                             };
                         }

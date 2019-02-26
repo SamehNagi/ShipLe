@@ -77,7 +77,7 @@ namespace SimpleRESTServer
         public static long SaveShipment(Shipment ShipmentData)
         {
             long ShipmentID = 0;
-            string DeliveryDate = string.Format("yyyy-MM-dd hh:mm tt",  ShipmentData.DeliveryDate);
+            string DeliveryDate = ShipmentData.DeliveryDate.ToString("yyyy-dd-MM hh:mm");
 
             string SQLQuery = string.Format("INSERT INTO Shipments (TripID, UserID, SourceCountry, DestinationCountry, " +
                               "DeliveryDate, ShipmentName, ShipmentNote) Values ({0}, {1}, {2}, {3}, '{4}', '{5}', '{6}')",
