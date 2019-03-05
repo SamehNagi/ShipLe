@@ -224,7 +224,7 @@ namespace SimpleRESTServer
                                                     "DestinationCountry  = @DestinationCountry,"  +
                                                     "DeliveryDate        = @DeliveryDate,"        +
                                                     "ShipmentName        = @Shipmentname,"        +
-                                                    "ShipmentNote        = @ShipmentNote,"        +
+                                                    "ShipmentNote        = @ShipmentNote "        +
                                                     "Where ShipmentID    = @ShipmentID";
 
             string ConnectionString = ConfigurationManager.ConnectionStrings["PhpMySqlRemoteDB"].ConnectionString;
@@ -249,7 +249,7 @@ namespace SimpleRESTServer
                 {
                     using (MySqlCommand CMD = new MySqlCommand(SQLQuery, Conn))
                     {
-                        CMD.Parameters.Add("@ShipmentID",         MySqlDbType.VarChar).Value   = ShipmentData.ShipmentID;
+                        CMD.Parameters.Add("@ShipmentID",         MySqlDbType.Int32).Value   = ShipmentData.ShipmentID;
                         CMD.Parameters.Add("@TripID",             MySqlDbType.Int32).Value     = ShipmentData.TripID;
                         CMD.Parameters.Add("@UserID",             MySqlDbType.Int32).Value     = ShipmentData.UserID;
                         CMD.Parameters.Add("@SourceCountry",      MySqlDbType.Int32).Value     = ShipmentData.SourceCountry;

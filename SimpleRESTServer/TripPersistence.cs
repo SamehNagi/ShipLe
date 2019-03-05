@@ -219,7 +219,6 @@ namespace SimpleRESTServer
         {
             bool Updated = false;
             string SQLString = "Update Trips Set "  +
-                                "TripID              = @TripID,"             + 
                                 "UserID              = @UserID,"             +
                                 "TravelDate          = @TDate,"              +
                                 "ArrivalDate         = @ADate,"              +

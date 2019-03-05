@@ -26,7 +26,7 @@ namespace SimpleRESTServer.Controllers
         /// </summary>
         /// <param name="ID"></param>
         /// <returns></returns>
-        // GET: api/Shipment/5
+        // GET: api/Shipment/?ID=
         public Shipment Get(long ID)
         {
             Shipment ShipmentData = ShipmentPersistence.GetShipment(ID);

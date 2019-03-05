@@ -54,7 +54,7 @@ namespace SimpleRESTServer.Controllers
         /// <param name="ID"></param>
         /// <param name="Value"></param>
         /// <returns></returns>
-        // PUT: api/User/?UserID=
+        // PUT: api/User/?ID=
         public bool Put(long ID, [FromBody]User Value)
         {
             Value.UserID = ID;
@@ -68,7 +68,7 @@ namespace SimpleRESTServer.Controllers
         /// </summary>
         /// <param name="ID"></param>
         /// <returns></returns>
-        // DELETE: api/User/?UserID=
+        // DELETE: api/User/?ID=
         public bool Delete(long ID)
         {
             bool Deleted = UserPersistence.DeleteUser(ID);
